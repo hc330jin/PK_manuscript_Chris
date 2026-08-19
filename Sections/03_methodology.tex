@@ -1,2 +1,244 @@
-\subsection{Simulation}
-\todo{How to generate synthetic data}
+\subsection{Risk-neutral SVCJ specification}
+\label{subsec:q_svcj_specification}
+
+We first validate the numerical recovery of the risk-neutral parameters before
+applying the calibration procedure to observed option prices. This validation
+is important because SVCJ calibration is a nonlinear inverse problem: several
+combinations of stochastic-volatility and jump parameters can generate similar
+option-price surfaces, Monte Carlo error perturbs the objective function, and a
+local least-squares optimizer can converge to different solutions from
+different initial values. A satisfactory fit to market prices alone therefore
+does not establish that the implementation can recover the parameters that
+generated those prices. The simulation study below supplies a controlled
+environment in which the data-generating parameter vector is known.
+
+Let $Y_t=\log S_t$. Under the risk-neutral measure $\mathbb{Q}$, the SVCJ
+dynamics used in the simulation are
+\begin{align}
+dY_t
+&=\left(r-\delta-\frac{1}{2}V_t-\lambda\kappa_J\right)dt
+  +\sqrt{V_t}\,dW_t^S+J_t^Y\,dN_t,
+\label{eq:q_svcj_log_price}\\
+dV_t
+&=\kappa(\theta-V_t)dt
+  +\sigma_v\sqrt{V_t}\,dW_t^V+J_t^V\,dN_t,
+\label{eq:q_svcj_variance}
+\end{align}
+where $dW_t^S dW_t^V=\rho\,dt$, $N_t$ is a Poisson process with
+intensity $\lambda$, and the simultaneous variance and log-price jumps satisfy
+\begin{align}
+J_t^V&\sim\operatorname{Exp}(\mu_v),\\
+J_t^Y\mid J_t^V&\sim
+\mathcal{N}\!\left(\mu_y+\rho_JJ_t^V,\sigma_y^2\right).
+\end{align}
+Here $\operatorname{Exp}(\mu_v)$ is parameterized by its mean. The
+risk-neutral compensator is
+\begin{equation}
+\kappa_J
+=E^{\mathbb{Q}}\!\left[e^{J_t^Y}-1\right]
+=\frac{\exp(\mu_y+\tfrac{1}{2}\sigma_y^2)}
+       {1-\rho_J\mu_v}-1,
+\label{eq:q_svcj_jump_compensator}
+\end{equation}
+which requires $1-\rho_J\mu_v>0$. This drift adjustment ensures that the
+discounted underlying price is a martingale. The specification follows the
+affine jump-diffusion framework of \citet{DuffiePanSingleton2000} and the SVCJ
+model of \citet{ErakerJohannesPolson2003}.
+
+All parameters and maturities in this diagnostic experiment are expressed in
+daily units. With one Euler step per day, the implementation uses full
+truncation, $V_k^+=\max(V_k,0)$, and updates
+\begin{align}
+Y_{k+1}
+&=Y_k+\left(r-\delta-\frac{1}{2}V_k^+
+            -\lambda\kappa_J\right)
+  +\sqrt{V_k^+}\,Z_{k+1}^S+I_{k+1}J_{k+1}^Y,
+\label{eq:q_svcj_euler_log_price}\\
+V_{k+1}
+&=\max\left\{0,
+  V_k^++\kappa(\theta-V_k^+)
+  +\sigma_v\sqrt{V_k^+}\,Z_{k+1}^V
+  +I_{k+1}J_{k+1}^V\right\},
+\label{eq:q_svcj_euler_variance}
+\end{align}
+where
+\begin{equation}
+Z_{k+1}^V=\rho Z_{k+1}^S
+          +\sqrt{1-\rho^2}\,Z_{k+1}^{\perp},
+\qquad
+I_{k+1}=\mathbf{1}\{U_{k+1}<\lambda\}.
+\end{equation}
+
+\subsection{Simulation design for Q-parameter recovery}
+\label{subsec:q_parameter_recovery_simulation}
+
+The data-generating vector is
+\begin{equation}
+\boldsymbol{\theta}^{\mathbb Q}_0
+=\left(V_0,\kappa,\theta,\sigma_v,\rho,\lambda,
+       \mu_y,\sigma_y,\rho_J,\mu_v\right)^{\prime}
+=\left(0.0009,0.7425,0.0008,0.0489,-0.6245,
+       0.0033,0.3166,0.1267,-1.0821,0.0206\right)^{\prime}.
+\label{eq:q_simulation_true_parameters}
+\end{equation}
+We set $S_0=40{,}000$ and $r=\delta=0$. The candidate contract grid
+contains 52 distinct integer maturities spanning 1 to 365 days and 2,001
+equally spaced log-moneyness values from $-0.50$ to $0.50$ at each maturity,
+for a total of 104,052 distinct contracts. To avoid placing mechanically
+large intrinsic-value observations in the loss, the grid retains an
+out-of-the-money put when the strike is below the forward and an
+at-the-money or out-of-the-money call otherwise. The contracts are shuffled
+once using a fixed seed, and the samples are nested:
+\begin{equation}
+\mathcal D_{100}\subset\mathcal D_{1000}\subset\mathcal D_{10000}.
+\end{equation}
+Thus, $n$ denotes the number of distinct option prices used in calibration,
+not the number of simulated paths.
+
+For each of five replications, synthetic observed prices are formed from
+20,000 paths simulated at $\boldsymbol{\theta}^{\mathbb Q}_0$. Contracts with
+the same maturity share the same terminal-price sample, and the discounted
+average vanilla payoff gives
+\begin{equation}
+P_i^{\mathrm{obs}}
+=\frac{1}{M_D}\sum_{m=1}^{M_D}
+ e^{-rT_i}\max\!\left\{\omega_i
+ \left(S_{T_i}^{(m)}-K_i\right),0\right\},
+\qquad M_D=20{,}000,
+\label{eq:q_simulation_observed_price}
+\end{equation}
+where $\omega_i=1$ for a call and $\omega_i=-1$ for a put. The synthetic
+validation uses standard USD vanilla payoffs so that the Monte Carlo pricing
+and optimization pipeline can be isolated from the additional payoff
+transformation required by Deribit inverse options. The inverse-payoff
+implementation is validated separately before the market-data calibration.
+
+The experiment uses independent common-random-number sets across the data and
+estimation stages. Specifically,
+\begin{equation}
+P_i^{\mathrm{obs}}
+=\widehat P_i(\boldsymbol{\theta}^{\mathbb Q}_0;Z^{D}),
+\qquad
+P_i^{\mathrm{model}}(\boldsymbol{\theta})
+=\widehat P_i(\boldsymbol{\theta};Z^{E}),
+\qquad Z^{D}\ne Z^{E},
+\label{eq:q_independent_crn_design}
+\end{equation}
+with $M_E=20{,}000$ estimation paths. The estimation draws $Z^E$ are cached
+and held fixed at every objective evaluation and for every start within a
+replication. Hence the optimizer sees a deterministic objective, but the
+true-parameter loss need not be zero because the data and estimation path sets
+are independent. This design is more stringent than a same-CRN diagnostic,
+under which the true parameter produces zero pricing error by construction.
+
+\subsection{Calibration and recovery criterion}
+\label{subsec:q_parameter_recovery_estimation}
+
+For every replication and value of $n$, the ten parameters are estimated by
+bounded nonlinear least squares using MATLAB's trust-region-reflective
+\texttt{lsqnonlin} algorithm. The relative residual for contract $i$ is
+\begin{equation}
+r_i(\boldsymbol{\theta})
+=\frac{P_i^{\mathrm{obs}}
+       -P_i^{\mathrm{model}}(\boldsymbol{\theta})}
+       {\max\{P_i^{\mathrm{obs}},10^{-4}S_0\}},
+\label{eq:q_relative_residual}
+\end{equation}
+and the estimator minimizes
+\begin{equation}
+\widehat{\boldsymbol{\theta}}_n^{\mathbb Q}
+=\arg\min_{\boldsymbol{\theta}\in\Theta}
+ \sum_{i\in\mathcal D_n}r_i(\boldsymbol{\theta})^2.
+\label{eq:q_nonlinear_least_squares}
+\end{equation}
+The denominator prevents expensive near-the-money contracts from completely
+dominating the tail options that help identify jump parameters. The parameter
+bounds are
+\begin{align*}
+\boldsymbol{\ell}
+&=(0.00005,0.05,0.00005,0.005,-0.999,
+   0.00005,-0.50,0.005,-8.0,0.0005)^{\prime},\\
+\boldsymbol{u}
+&=(0.01000,3.00,0.01000,0.200,0.500,
+   0.05000,0.80,0.500,2.0,0.1000)^{\prime}.
+\end{align*}
+
+We use four deterministic mild-SV initial vectors. They begin from
+economically regular stochastic-volatility regimes while holding the jump
+parameters at the common neutral values
+$(\lambda,\mu_y,\sigma_y,\rho_J,\mu_v)
+=(0.003,0,0.05,0,0.02)$. This structured design proved more reliable than
+widely dispersed random starts. Parameter scaling is start-dependent,
+\begin{equation}
+\mathrm{TypicalX}_j=\max\{|\theta_j^{(0)}|,10^{-3}\},
+\end{equation}
+and forward finite differences use a relative step of $10^{-2}$. The
+true-parameter vector is not included among the starts. For each replication
+we retain the solution with the smallest relative-residual sum of squares.
+
+Parameter recovery is evaluated using absolute percentage error,
+\begin{equation}
+\operatorname{APE}_j
+=100\left|
+\frac{\widehat\theta_j-\theta_{0,j}}
+     {\theta_{0,j}}
+\right|.
+\label{eq:q_parameter_ape}
+\end{equation}
+Table~\ref{tab:q_parameter_recovery_simulation} reports estimates averaged
+across the five replications. APE is computed within each replication and
+then averaged, so it is not generally equal to the percentage error of the
+reported mean estimate.
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrr}
+\toprule
+& & \multicolumn{3}{c}{Mean estimated parameter}
+& \multicolumn{3}{c}{Mean APE (\%)}\\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+Parameter & True value & $n=100$ & $n=1{,}000$ & $n=10{,}000$
+& $n=100$ & $n=1{,}000$ & $n=10{,}000$\\
+\midrule
+$V_0$      & 0.000900 & 0.001038 & 0.000933 & 0.000918 & 29.98 & 9.06  & 3.68\\
+$\kappa$   & 0.742500 & 0.396534 & 0.561539 & 0.547842 & 46.59 & 24.37 & 26.22\\
+$\theta$   & 0.000800 & 0.000856 & 0.000924 & 0.000897 & 15.13 & 21.49 & 14.86\\
+$\sigma_v$ & 0.048900 & 0.038726 & 0.035032 & 0.038401 & 22.93 & 29.50 & 21.47\\
+$\rho$     & $-0.624500$ & $-0.288091$ & $-0.667680$ & $-0.614877$ & 53.87 & 18.42 & 17.05\\
+$\lambda$  & 0.003300 & 0.003844 & 0.003427 & 0.002961 & 16.63 & 25.50 & 21.96\\
+$\mu_y$    & 0.316600 & 0.203652 & 0.318214 & 0.323335 & 35.68 & 23.14 & 14.92\\
+$\sigma_y$ & 0.126700 & 0.044407 & 0.120930 & 0.120403 & 64.95 & 11.17 & 10.10\\
+$\rho_J$   & $-1.082100$ & 1.848960 & $-0.145671$ & 1.054524 & 270.87 & 262.33 & 197.45\\
+$\mu_v$    & 0.020600 & 0.018796 & 0.012498 & 0.009348 & 23.28 & 42.39 & 54.62\\
+\midrule
+Mean APE   & & & & & 57.99 & 46.74 & 38.23\\
+Median APE & & & & & 32.83 & 23.75 & 19.26\\
+\bottomrule
+\end{tabular}%
+}
+\caption{\textbf{Simulation-based recovery of risk-neutral SVCJ parameters.}
+The table reports results from five independent replications. Synthetic
+observed prices and model prices use separate sets of 20,000 Monte Carlo paths.
+For each replication, the calibration selects the lowest-loss solution among
+four deterministic mild-SV starts. The option samples are nested across
+$n=100$, $1{,}000$, and $10{,}000$. Mean APE is calculated parameter by
+parameter across replications. The final two rows summarize the ten reported
+parameter-specific APE values.}
+\label{tab:q_parameter_recovery_simulation}
+\end{table}
+
+The cross-sectional increase in option count improves recovery on average.
+The mean parameter APE decreases from 57.99\% at $n=100$ to 46.74\% at
+$n=1{,}000$ and 38.23\% at $n=10{,}000$; the corresponding median falls from
+32.83\% to 23.75\% and 19.26\%. Recovery improves especially for $V_0$,
+$\rho$, $\mu_y$, and $\sigma_y$. The improvement is not uniform, however.
+The co-jump parameter $\rho_J$ remains weakly identified, and the APE of
+$\mu_v$ increases with $n$. These patterns are consistent with compensation
+among jump intensity, jump-size, and co-jump parameters. They also show why
+pricing fit alone cannot be treated as evidence of parameter identification.
+Nevertheless, the decline in the central tendency of APE demonstrates that a
+richer option cross-section provides useful recovery information, while the
+remaining jump-parameter instability motivates the multiple-start,
+diagnostic, and robustness procedures used in the market-data calibration.
