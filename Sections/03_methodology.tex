@@ -73,14 +73,14 @@ I_{k+1}=\mathbf{1}\{U_{k+1}<\lambda\}.
 \label{subsec:q_parameter_recovery_simulation}
 
 The data-generating vector is
-\begin{equation}
+\begin{align}
 \boldsymbol{\theta}^{\mathbb Q}_0
-=\left(V_0,\kappa,\theta,\sigma_v,\rho,\lambda,
-       \mu_y,\sigma_y,\rho_J,\mu_v\right)^{\prime}
-=\left(0.0009,0.7425,0.0008,0.0489,-0.6245,
-       0.0033,0.3166,0.1267,-1.0821,0.0206\right)^{\prime}.
+&=\left(V_0,\kappa,\theta,\sigma_v,\rho,\lambda,
+       \mu_y,\sigma_y,\rho_J,\mu_v\right)^{T} \\ 
+&=\left(0.0009,0.7425,0.0008,0.0489,-0.6245,
+       0.0033,0.3166,0.1267,-1.0821,0.0206\right)^{T}.
 \label{eq:q_simulation_true_parameters}
-\end{equation}
+\end{align}
 We set $S_0=40{,}000$ and $r=\delta=0$. The candidate contract grid
 contains 52 distinct integer maturities spanning 1 to 365 days and 2,001
 equally spaced log-moneyness values from $-0.50$ to $0.50$ at each maturity,
