@@ -1,0 +1,104 @@
+\documentclass[11pt]{article}
+
+\usepackage{amssymb,amsmath,amsfonts,booktabs,eurosym,float,geometry,ulem,graphicx,caption,color,setspace,sectsty,comment,footmisc,caption,pdflscape,subfigure,array,makecell}
+
+% \usepackage[authoryear]{natbib}
+\usepackage[round,authoryear]{natbib}
+\bibliographystyle{plainnat}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\usepackage{xcolor}
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+
+\normalem
+\onehalfspacing
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}{Proposition}
+\newenvironment{proof}[1][Proof]{\noindent\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+\newtheorem{hyp}{Hypothesis}
+\newtheorem{subhyp}{Hypothesis}[hyp]
+\renewcommand{\thesubhyp}{\thehyp\alph{subhyp}}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\arraybackslash\hspace{0pt}}m{#1}}
+\geometry{left=0.8in,right=0.8in,top=1.0in,bottom=1.0in}
+
+\begin{document}
+
+\begin{titlepage}
+\title{Robust Pricing Kernel Estimation for Bitcoin Options under the SVCJ Model}%\thanks{This paper is supported by the National Science and Technology Council of Taiwan under Grant No. 112-2118-M-A49-001-MY2; the Higher Education Sprout Project of the Ministry of Education of Taiwan, ROC.}%
+\author{Huei-Wen Teng\thanks{Department of Information Management and Finance, National Yang Ming Chiao Tung University. Email: \href{mailto:hwteng@nycu.edu.tw}{hwteng@nycu.edu.tw}} \and Chin Hsu\thanks{Department of Applied Mathematics, National Yang Ming Chiao Tung University. Email: \href{mailto:hc330.sc14@nycu.edu.tw}{hc330.sc14@nycu.edu.tw}}  \and Wolfgang Haerdle}
+\date{\today}
+\maketitle
+
+\input{Sections/00_abstract}
+\setcounter{page}{0}
+\thispagestyle{empty}
+\end{titlepage}
+
+\doublespacing
+%\tableofcontents
+%\listoftables
+%\listoffigures
+%\clearpage
+
+\input{Sections/01_introduction}
+
+%\subsection{Organization of this paper}
+
+
+
+\input{Sections/02_data}
+
+
+
+
+
+\section{Preliminaries and our methodology}\label{sec:preliminaries}
+
+
+
+\section{Empirical Analysis} \label{sec:empirical_analysis}
+
+
+
+\section{Conclusion} \label{sec:conclusion}
+
+
+\singlespacing
+\setlength\bibsep{0pt}
+\bibliographystyle{chicago}
+\bibliography{20260527_Chin_reference}
+
+\clearpage
+
+
+%\section*{Appendix A. Placeholder} \label{sec:appendixa}
+%\addcontentsline{toc}{section}{Appendix A}
+\section{Appendix}
+\label{sec:appendix}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{llll}
+         \hline
+         Index & Column & Type & Description \\
+         \hline
+         1 & \textit{trade id} & string & Unique (per currency) trade identifier \\
+         2 & $q$ & number & quantity \\
+         3 & $p$ & number & Option price denoted in BTC \\
+         4 & $d$ & string & Date (YYYY/mm/dd) \\
+         5 & $iv$ & number & implied volatiility \\
+         6 & \textit{instrument name} & string & UNDERLYING-MATURITY-STRIKE (Call/Put) \\
+         7 & \textit{direction} & string & buy/sell\\
+         8 & \textit{index price} & number & the price of underlying BTC denoted in USD \\
+         \hline
+         
+    \end{tabular}
+    \caption{\textbf{Data descriptions}. This table lists columns and their descriptions for the intraday transaction
+of Deribit inverse options through the API provided by Deribit.com}
+    \label{tab:placeholder}
+\end{table}
+
+\end{document}
