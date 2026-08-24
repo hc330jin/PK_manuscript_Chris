@@ -63,48 +63,6 @@ options}
 
 Figure 3 illustrates the cross-sectional distribution of strike prices across the full year for calls (blue) and puts (red), with the black line tracing the daily spot price. Strikes span more than two orders of magnitude on a logarithmic scale – from approximately \$10,000 to \$1,000,000 – with the densest concentration in a band surrounding the at-the-money level, confirming that the most actively traded contracts are near-the-money options. The upward drift of the strike distribution mirrors the appreciation of the underlying spot price, indicating that market participants continuously recalibrate their hedging and speculative positions as BTC's price evolves.
 
-\subsection{Construction of Daily Closing Option Prices}
-\label{subsec:daily_closing_prices}
-
-Daily risk-neutral calibration requires a cross-section of option prices that refers, as closely as the data permit, to a common valuation time. If all transactions over a 24-hour period were pooled into one daily cross-section, differences across strikes and maturities would be confounded by intraday changes in the Bitcoin index, the implied-volatility state, and time to maturity. The resulting collection of prices would therefore not represent the option surface prevailing at any particular instant. This timing consideration is important for option-implied risk-neutral estimation, which treats prices across strikes as a contemporaneous cross-section \citep{AitSahaliaLo1998}. Recent empirical work on Bitcoin risk premia likewise illustrates the use of transaction-level option records organized at a daily frequency \citep{AlmeidaGrithMiftachovWang2024}.
-
-We anchor the daily cross-section at 08:00 UTC. This is the natural boundary of a Deribit trading day: Deribit performs its daily settlement at 08:00 UTC, and its inverse BTC options expire at that time \citep{DeribitSettlement2026}. Exact 08:00 transaction prices are generally unavailable because an option contract need not trade at that instant. We consequently construct a daily closing transaction panel from actual outright trades observed in a short interval centered on 08:00 UTC. This panel should not be interpreted as a synchronous order-book snapshot: contracts without a qualifying transaction are not imputed, and historical bid and ask quotations are not used.
-
-For each UTC date and each instrument, let $\mathcal{I}_{j,d}(h)$ denote the set of eligible trades in the interval $[08{:}00-h,08{:}00+h]$, where $h$ is the half-window width. Liquidations, combination-strategy legs, block trades, and RFQ (Request for quote) trades are excluded so that the retained observations represent regular outright market transactions. Our baseline closing price is the price of the eligible trade closest to 08:00,
-\begin{equation}
- p^{\mathrm{close}}_{j,d}
- =p_{i^{*},j,d}, \qquad
- i^{*}=\arg\min_{i\in\mathcal{I}_{j,d}(h)}
- \left|t_{i,j,d}-08{:}00\right|.
- \label{eq:closest_closing_trade}
-\end{equation}
-If multiple transactions are equally close, the larger transaction is selected, followed by the larger trade identifier as a deterministic tie-breaker. To assess sensitivity to individual prints and bid--ask bounce, we also retain the quantity-weighted average price
-\begin{equation}
- p^{\mathrm{VWAP}}_{j,d}(h)
- =\frac{\sum_{i\in\mathcal{I}_{j,d}(h)}p_{i,j,d}q_{i,j,d}}
- {\sum_{i\in\mathcal{I}_{j,d}(h)}q_{i,j,d}},
- \label{eq:closing_vwap}
-\end{equation}
-and the median transaction price for robustness analysis. Prices are preserved in their original BTC units. USD-equivalent prices are recorded separately by multiplying the BTC premium by the contemporaneous Deribit BTC index; this conversion changes the unit of account but does not transform an asynchronous trade into an exact 08:00 price.
-
-Table~\ref{tab:closing_window_comparison} reports the coverage obtained from half-windows of one, two, and five minutes. The sample contains a qualifying transaction on every one of the 366 calendar days for all three specifications. A one-minute half-window produces only 22.27 distinct instruments per day on average, whereas a five-minute half-window increases average daily coverage to 73.82 instruments and yields 27,018 date--instrument observations over the year. The five-minute half-window, corresponding to 07:55--08:05 UTC, is therefore used to construct the preliminary closing panel. The closest-transaction price remains the baseline measure, while the five-minute VWAP and median price are retained for robustness checks. The shorter windows will be used to assess the sensitivity of the subsequent calibration to the trade-off between temporal synchronization and cross-sectional coverage.
-
-\begin{table}[htbp]
-\centering
-\begin{tabular}{lrrrrrr}
-\toprule
-Half-window & Full window & \multicolumn{2}{c}{Daily trades} & \multicolumn{2}{c}{Daily instruments} & Annual\\
-\cmidrule(lr){3-4}\cmidrule(lr){5-6}
-$h$ & width & Mean & Median & Mean & Median & observations\\
-\midrule
-$\pm 1$ minute  & 2 minutes  & 52.76  & 45  & 22.27 & 21 & 8,151\\
-$\pm 2$ minutes & 4 minutes  & 145.07 & 131 & 42.46 & 38 & 15,541\\
-$\pm 5$ minutes & 10 minutes & 411.99 & 366 & 73.82 & 66 & 27,018\\
-\bottomrule
-\end{tabular}
-\caption{\textbf{Comparison of daily closing-price windows.} For every UTC date in 2024, the table summarizes eligible regular outright BTC inverse-option transactions in a window centered on 08:00 UTC. ``Daily instruments'' counts distinct contracts with at least one eligible trade, and ``Annual observations'' counts unique date--instrument pairs. Liquidations, combination-strategy legs, block trades, and RFQ trades are excluded. All three windows contain at least one eligible transaction on each of the 366 sample days.}
-\label{tab:closing_window_comparison}
-\end{table}
 
 \clearpage
 
@@ -138,7 +96,7 @@ Max & 365 & 365 & 10.23 & 10.02 & 0.9025 & 4.8170 \\
 \label{tab:option_characteristics}
 \end{table}
 
-Tables 2 and 3 report the same three characteristics - time to maturity ($T$), moneyness ($S_0/K$), and price ($p$) - but Table 3 reweights each contract by traded volume rather than treating each observation equally. The comparison reveals a systematic shift in the bulk of the distribution once size is accounted for, while the extreme tails remain essentially unchanged.
+Tables 2 and 3 report the same three characteristics - time to maturity ($T$), moneyness ($S_0/K$), and price ($p$) - but Table \ref{tab:weighted_option_characteristics} reweights each contract by traded volume rather than treating each observation equally. The comparison reveals a systematic shift in the bulk of the distribution once size is accounted for, while the extreme tails remain essentially unchanged.
 
 For maturity, the weighted median maturity roughly doubles relative to the unweighted median (calls: 7 $\to$ 14 days; puts: 4 $\to$ 9 days), and this pattern persists through the 90th percentile (calls: 65 $\to$ 98; puts: 50 $\to$ 65). This indicates that larger trades are disproportionately concentrated in longer-dated contracts, rather than in the very short-dated options that dominate the raw contract count.
 
@@ -176,7 +134,7 @@ Max & 365 & 365 & 10.23 & 10.02 & 0.9025 & 4.8170 \\
 \hline
 \end{tabular}
 \caption{\textbf{Weighted distributions of option characteristics}. The table presents percentiles for BTC call and put options' time to maturity ($T$), moneyness ($S_0/K$), and prices ($p$), with $Q_k$ representing the $k$-th percentile.}
-\label{tab:option_characteristics}
+\label{tab:weighted_option_characteristics}
 \end{table}
 
 
@@ -209,9 +167,9 @@ Sum & 6.2\% & 29.0\% & 9.8\% & 44.9\% \\
 
 \end{table}
 
-Tables 4 and 5 partition trading activity into a 3$\times$3 maturity-moneyness grid for calls and puts separately, contrasting the raw trade-count distribution (Table 4) with the quantity-weighted distribution (Table 5). Two consistent patterns emerge once volume is used as the weight instead of trade count.
+Tables \ref{tab:maturity_moneyness_categories} and \ref{tab:weighted_maturity_moneyness_categories} partition trading activity into a 3$\times$3 maturity-moneyness grid for calls and puts separately, contrasting the raw trade-count distribution (Table \ref{tab:maturity_moneyness_categories}) with the quantity-weighted distribution (Table \ref{tab:weighted_maturity_moneyness_categories}). Two consistent patterns emerge once volume is used as the weight instead of trade count.
 
-Shift from short-term to long-term. Under the unweighted count, short-term options ($T\le 7$) dominate both calls (28.6\%) and puts (26.1\%), while long-term options are the smallest bucket (11.8\% calls, 7.7\% puts). Weighting by quantity essentially reverses this ordering for calls: long-term rises to 20.5\%, roughly matching short-term's 21.7\%, while for puts the short-term share nearly halves (26.1\% $\to$ 17.6\%) and long-term rises modestly (7.7\% $\to$ 9.7\%). This confirms what Table 3 already suggested from the marginal maturity distribution — large trades cluster in longer-dated contracts, so a small number of big long-dated trades can rival a much larger number of small short-dated ones.
+Shift from short-term to long-term. Under the unweighted count, short-term options ($T\le 7$) dominate both calls (28.6\%) and puts (26.1\%), while long-term options are the smallest bucket (11.8\% calls, 7.7\% puts). Weighting by quantity essentially reverses this ordering for calls: long-term rises to 20.5\%, roughly matching short-term's 21.7\%, while for puts the short-term share nearly halves (26.1\% $\to$ 17.6\%) and long-term rises modestly (7.7\% $\to$ 9.7\%). This confirms what Table \ref{tab:weighted_option_characteristics} already suggested from the marginal maturity distribution — large trades cluster in longer-dated contracts, so a small number of big long-dated trades can rival a much larger number of small short-dated ones.
 
 Shift toward deep OTM, especially at long maturities. The clearest movement is in the OTM/deep-OTM composition. For calls, deep-OTM share more than doubles for the long-term bucket alone (6.4\% $\to$ 12.4\%), and the overall call deep-OTM sum rises from 10.0\% to 17.1\%. For puts, the deep-OTM long-term cell rises from 4.2\% to 5.6\%, and overall put deep-OTM rises from 9.8\% to 11.8\%, while the near-the-money OTM bucket shrinks correspondingly (put OTM sum: 29.0\% → 22.6\%). This is consistent with the earlier percentile analysis: large trades skew toward tail hedges rather than near-the-money speculative flow.
 
@@ -240,7 +198,7 @@ Sum & 5.0\% & 22.6\% & 11.8\% & 39.4\% \\
 \hline
 \end{tabular}
 \caption{\textbf{Weighted Maturity-moneyness categories}. The table delineates nine categories based on maturity-moneyness. Short-term, mid-term, and long-term options are defined by $T \leq 7$, $7 < T \leq 28$, and $28 < T$, while OTM, ITM, and deep OTM options are defined by their moneyness ($S_0/K$). The table reports the proportion (\%) of trades in each maturity-moneyness category.}
-\label{tab:maturity_moneyness_categories}
+\label{tab:weighted_maturity_moneyness_categories}
 \end{table}
 
 
@@ -291,11 +249,11 @@ Mid-term: $7 < T \leq 28$ & \makecell{0.0649\\(0.0507)} & \makecell{0.0212\\(0.0
 Long-term: $28 < T$ & \makecell{0.1366\\(0.1660)} & \makecell{0.0566\\(0.0276)} & \makecell{0.0205\\(0.0193)} \\
 \hline
 \end{tabular}
-\caption{Weighted average prices in BTC and standard deviations of inverse options. This table displays the mean prices and standard deviations in parentheses for options across each maturity-moneyness category.}
-\label{tab:average_prices_inverse_options}
+\caption{\textbf{Weighted average prices in BTC and standard deviations of inverse options.} This table displays the mean prices and standard deviations in parentheses for options across each maturity-moneyness category.}
+\label{tab:weighted_average_prices_inverse_options}
 \end{table}
 
-Tables 6 and 7 report mean BTC-denominated prices (with standard deviations) across the same nine maturity-moneyness buckets, unweighted per-contract versus weighted by traded quantity. Three patterns stand out.
+Tables \ref{tab:average_prices_inverse_options} and \ref{tab:weighted_average_prices_inverse_options} report mean BTC-denominated prices (with standard deviations) across the same nine maturity-moneyness buckets, unweighted per-contract versus weighted by traded quantity. Three patterns stand out.
 
 Monotonicity confirms internal consistency. Within both tables, prices rise monotonically with maturity for every moneyness bucket (as expected from time value), and rise monotonically with moneyness for calls (deep OTM cheapest, ITM most expensive) while falling monotonically with moneyness for puts. This is a useful sanity check: the data respects basic no-arbitrage ordering before any model fitting is applied, so any monotonicity violations you find later in the pricing kernel estimate can't be traced back to a raw data pathology at this level.
 
@@ -303,7 +261,48 @@ Weighting effects are asymmetric and bucket-specific, not uniform. Rather than a
 
 Dispersion is highest exactly where large trades concentrate. The standard deviations are large relative to the means in the long-term ITM buckets — long-term ITM puts show a standard deviation (0.2642 unweighted) that actually exceeds the mean (0.1761), a coefficient of variation above 1. Long-term deep-OTM calls show similar relative dispersion (0.0414 vs. mean 0.0374). Given that Tables 4–5 showed these same long-term/deep buckets are exactly where quantity-weighting shifts trading share upward, this dispersion is plausibly driven by the discrete macro-jump episodes (March, August, November) identified earlier — large trades executed in these buckets during the year likely span both pre- and post-jump price regimes, inflating within-bucket variance.
 
+\clearpage
 
+\subsection{Construction of Daily Closing Option Prices}
+\label{subsec:daily_closing_prices}
 
+Daily risk-neutral calibration requires a cross-section of option prices that refers, as closely as the data permit, to a common valuation time. If all transactions over a 24-hour period were pooled into one daily cross-section, differences across strikes and maturities would be confounded by intraday changes in the Bitcoin index, the implied-volatility state, and time to maturity. The resulting collection of prices would therefore not represent the option surface prevailing at any particular instant. This timing consideration is important for option-implied risk-neutral estimation, which treats prices across strikes as a contemporaneous cross-section \citep{AitSahaliaLo1998}. Recent empirical work on Bitcoin risk premia likewise illustrates the use of transaction-level option records organized at a daily frequency \citep{AlmeidaGrithMiftachovWang2024}.
 
+We anchor the daily cross-section at 08:00 UTC. This is the natural boundary of a Deribit trading day: Deribit performs its daily settlement at 08:00 UTC, and its inverse BTC options expire at that time \citep{DeribitSettlement2026}. Exact 08:00 transaction prices are generally unavailable because an option contract need not trade at that instant. We consequently construct a daily closing transaction panel from actual outright trades observed in a short interval centered on 08:00 UTC. This panel should not be interpreted as a synchronous order-book snapshot: contracts without a qualifying transaction are not imputed, and historical bid and ask quotations are not used.
+
+For each UTC date and each instrument, let $\mathcal{I}_{j,d}(h)$ denote the set of eligible trades in the interval $[08{:}00-h,08{:}00+h]$, where $h$ is the half-window width. Liquidations, combination-strategy legs, block trades, and RFQ (Request for quote) trades are excluded so that the retained observations represent regular outright market transactions. Our baseline closing price is the price of the eligible trade closest to 08:00,
+\begin{equation}
+ p^{\mathrm{close}}_{j,d}
+ =p_{i^{*},j,d}, \qquad
+ i^{*}=\arg\min_{i\in\mathcal{I}_{j,d}(h)}
+ \left|t_{i,j,d}-08{:}00\right|.
+ \label{eq:closest_closing_trade}
+\end{equation}
+If multiple transactions are equally close, the larger transaction is selected, followed by the larger trade identifier as a deterministic tie-breaker. To assess sensitivity to individual prints and bid--ask bounce, we also retain the quantity-weighted average price
+\begin{equation}
+ p^{\mathrm{VWAP}}_{j,d}(h)
+ =\frac{\sum_{i\in\mathcal{I}_{j,d}(h)}p_{i,j,d}q_{i,j,d}}
+ {\sum_{i\in\mathcal{I}_{j,d}(h)}q_{i,j,d}},
+ \label{eq:closing_vwap}
+\end{equation}
+and the median transaction price for robustness analysis. Prices are preserved in their original BTC units. USD-equivalent prices are recorded separately by multiplying the BTC premium by the contemporaneous Deribit BTC index; this conversion changes the unit of account but does not transform an asynchronous trade into an exact 08:00 price.
+
+Table~\ref{tab:closing_window_comparison} reports the coverage obtained from half-windows of one, two, and five minutes. The sample contains a qualifying transaction on every one of the 366 calendar days for all three specifications. A one-minute half-window produces only 22.27 distinct instruments per day on average, whereas a five-minute half-window increases average daily coverage to 73.82 instruments and yields 27,018 date--instrument observations over the year. The five-minute half-window, corresponding to 07:55--08:05 UTC, is therefore used to construct the preliminary closing panel. The closest-transaction price remains the baseline measure, while the five-minute VWAP and median price are retained for robustness checks. The shorter windows will be used to assess the sensitivity of the subsequent calibration to the trade-off between temporal synchronization and cross-sectional coverage.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lrrrrrr}
+\toprule
+Half-window & Full window & \multicolumn{2}{c}{Daily trades} & \multicolumn{2}{c}{Daily instruments} & Annual\\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+$h$ & width & Mean & Median & Mean & Median & observations\\
+\midrule
+$\pm 1$ minute  & 2 minutes  & 52.76  & 45  & 22.27 & 21 & 8,151\\
+$\pm 2$ minutes & 4 minutes  & 145.07 & 131 & 42.46 & 38 & 15,541\\
+$\pm 5$ minutes & 10 minutes & 411.99 & 366 & 73.82 & 66 & 27,018\\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Comparison of daily closing-price windows.} For every UTC date in 2024, the table summarizes eligible regular outright BTC inverse-option transactions in a window centered on 08:00 UTC. ``Daily instruments'' counts distinct contracts with at least one eligible trade, and ``Annual observations'' counts unique date--instrument pairs. Liquidations, combination-strategy legs, block trades, and RFQ trades are excluded. All three windows contain at least one eligible transaction on each of the 366 sample days.}
+\label{tab:closing_window_comparison}
+\end{table}
 \clearpage
