@@ -1,4 +1,97 @@
-\subsection{Risk-neutral SVCJ specification}
+\subsection{Physical-measure parameter estimation}
+\label{subsec:p_parameter_estimation}
+
+\subsubsection{SVCJ dynamics and MCMC estimation}
+\label{subsubsec:p_svcj_mcmc}
+
+We estimate the physical-measure SVCJ model from daily BTC/USD log returns.
+The daily Euler transition is
+\begin{align}
+r_t &= \mu^P+\sqrt{V_{t-1}}\epsilon^y_t+J_t Z^y_t,
+\label{eq:p_svcj_return}\\
+V_t &= V_{t-1}+\alpha^P+\beta^P V_{t-1}
+      +\sigma_v^P\sqrt{V_{t-1}}\epsilon^v_t+J_t Z^v_t,
+\label{eq:p_svcj_variance}
+\end{align}
+where $\operatorname{corr}(\epsilon^y_t,\epsilon^v_t)=\rho^P$,
+$J_t\sim\operatorname{Bernoulli}(\lambda^P)$,
+$Z^v_t\sim\operatorname{Exp}(\mu_v^P)$, and
+\begin{equation}
+Z^y_t\mid Z^v_t
+\sim\mathcal{N}\!\left(\mu_y^P+\rho_j^P Z^v_t,
+                        (\sigma_y^P)^2\right).
+\end{equation}
+The exponential distribution is parameterized by its mean. The restriction
+$\alpha^P>0$ and $-1<\beta^P<0$ makes $-\alpha^P/\beta^P$ the stationary
+variance level of the Euler variance process in the absence of jumps.
+
+We use Bayesian data augmentation to update the structural parameters jointly
+with the latent variance path, jump indicators, and jump sizes. The first half
+of every Markov chain is discarded as burn-in, and posterior means summarize
+the retained draws. Successive rolling windows are warm-started from the
+preceding posterior mean, while the latent jump indicators remain stochastic
+states updated within the sampler rather than externally imposed observations.
+
+\subsubsection{Simulation design for P-parameter recovery}
+\label{subsubsec:p_parameter_recovery}
+
+We first simulate one SVCJ return path of 10,000 observations and then estimate
+the model from its nested prefixes,
+\begin{equation}
+\mathcal{Y}_{100}\subset\mathcal{Y}_{1000}
+\subset\mathcal{Y}_{10000}.
+\end{equation}
+Holding the data-generating parameters, random-number seed, priors, and MCMC
+transition kernel fixed isolates the effect of sample size. The recovery study
+reports the true value, posterior mean, and absolute percentage error of every
+parameter. It also reports QQ diagnostics for the standardized return
+innovations.
+
+This is a deliberately demanding experiment for the jump block. With daily
+jump probability $\lambda^P=0.02$, samples of 100, 1,000, and 10,000 contain
+only about 2, 20, and 200 jumps in expectation. Thus, at $n=100$ the jump-size
+parameters can remain weakly identified even when the diffusion parameters are
+reasonably recovered. The nested design makes this finite-sample limitation
+visible without confounding it with a different simulated history.
+
+\subsubsection{Estimation-window selection and QQ diagnostics}
+\label{subsubsec:p_window_selection}
+
+The estimation window must balance local adaptation against identification.
+A 40-return window is too short for the joint SVCJ specification: it contains
+eleven structural parameters and latent states but fewer than one jump in
+expectation when $\lambda^P=0.02$. This concern is consistent with the much
+longer daily samples used in the literature. \citet{ErakerJohannesPolson2003}
+estimate stochastic-volatility jump models from long S\&P~500 and Nasdaq
+histories, and \citet{ChaimLaurini2018} use 1,840 daily Bitcoin observations.
+
+We therefore adopt 1,000 returns as the baseline rolling window. For a market
+that trades seven days per week, this corresponds to approximately 2.7 years
+and contains about 20 jumps at $\lambda^P=0.02$. It is a pragmatic minimum:
+the $n\in\{100,1{,}000,10{,}000\}$ recovery experiment quantifies the remaining
+finite-sample uncertainty, while an expanding window and a 2,000-return window
+serve as robustness specifications. For target date $t$, the baseline window
+contains only returns dated strictly before $t$, which prevents look-ahead
+bias.
+
+Model adequacy is assessed with a QQ plot of the standardized diffusion
+innovation after removing the posterior expected jump contribution,
+\begin{equation}
+\widehat\epsilon_t^y
+=\frac{r_t-\widehat\mu^P
+        -\widehat{J_tZ_t^y}}
+       {\sqrt{\widehat V_{t-1}}}.
+\label{eq:p_standardized_innovation}
+\end{equation}
+Under a correctly specified diffusion component, its central quantiles should
+be close to those of a standard normal distribution. Tail deviations are
+interpreted as residual misspecification, not as a requirement that raw
+Bitcoin returns themselves be Gaussian.
+
+\subsection{Risk-neutral parameter estimation}
+\label{subsec:q_parameter_estimation}
+
+\subsubsection{Risk-neutral SVCJ specification}
 \label{subsec:q_svcj_specification}
 
 We first validate the numerical recovery of the risk-neutral parameters before
@@ -69,7 +162,7 @@ Z_{k+1}^V=\rho Z_{k+1}^S
 I_{k+1}=\mathbf{1}\{U_{k+1}<\lambda\}.
 \end{equation}
 
-\subsection{Simulation design for Q-parameter recovery}
+\subsubsection{Simulation design for Q-parameter recovery}
 \label{subsec:q_parameter_recovery_simulation}
 
 The data-generating vector is
@@ -131,7 +224,7 @@ true-parameter loss need not be zero because the data and estimation path sets
 are independent. This design is more stringent than a same-CRN diagnostic,
 under which the true parameter produces zero pricing error by construction.
 
-\subsection{Calibration and recovery criterion}
+\subsubsection{Calibration and recovery criterion}
 \label{subsec:q_parameter_recovery_estimation}
 
 For every replication and value of $n$, the ten parameters are estimated by

@@ -63,6 +63,18 @@
 
 \section{Empirical Analysis} \label{sec:empirical_analysis}
 
+\subsection{Physical-measure estimates and diagnostics}
+\label{sec:p-estimation-results}
+
+For every calendar day in 2024, the information set contains the preceding
+1,000 returns and excludes the return dated $t$, preventing look-ahead bias.
+Each chain is warm-started from the preceding day's posterior mean and saved
+immediately for restartability. The short-period diagnostic uses the final 90
+returns of 2024. Its QQ plot is a specification diagnostic for the diffusion
+innovation after removing posterior expected jumps; departures in the tails
+therefore indicate residual misspecification rather than evidence that the raw
+BTC return itself should be Gaussian.
+
 
 
 \section{Conclusion} \label{sec:conclusion}
