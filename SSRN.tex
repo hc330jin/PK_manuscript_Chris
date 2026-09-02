@@ -114,4 +114,280 @@ of Deribit inverse options through the API provided by Deribit.com}
     \label{tab:placeholder}
 \end{table}
 
+
+\clearpage
+\subsection{Full-Year Intraday Deribit BTC Inverse Option EDA}
+\label{app:full_year_intraday_option_eda}
+
+The options dataset consists of intraday transaction records for European-style BTC inverse options traded on Deribit, the dominant venue for Bitcoin derivatives with a market share exceeding 80\% of global BTC options volume. Inverse options are denominated and settled in Bitcoin rather than US dollars, meaning that the contract payoff for a call is $\max\left(\dfrac
+{S_T-K}{S_T},0\right)$ in BTC units, a structure unique to cryptocurrency markets that introduces convexity in the USD-equivalent payoff and requires careful adaptation of standard pricing formulas, as detailed in Teng and Härdle.
+
+% \clearpage
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{Sections/02_data_figures/Daily_traded_quantity.png}
+    \caption{Daily accumulated trades and quantities}
+    \label{app:fig:placeholder:1}
+\end{figure}
+
+Figure 2 shows daily trading activity throughout 2024, with the number of trades fluctuating between approximately 5,000 and 45,000 per day and total daily quantity ranging between 5,000 and 90,000 BTC notional. Two prominent spikes in both trades and quantity are visible around late February to early March and late July to early August 2024, coinciding with periods of elevated Bitcoin price volatility and heightened hedging demand. The overall level of activity confirms that the Deribit market is sufficiently liquid to support the daily cross-sectional calibration undertaken in this thesis.
+
+\clearpage
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{Sections/02_data_figures/Strike price for the intraday of inverse options.png}
+    \caption{Visualizing strike prices for the intraday transaction of inverse
+options}
+    \label{app:fig:placeholder:2}
+\end{figure}
+
+Figure 3 illustrates the cross-sectional distribution of strike prices across the full year for calls (blue) and puts (red), with the black line tracing the daily spot price. Strikes span more than two orders of magnitude on a logarithmic scale – from approximately \$10,000 to \$1,000,000 – with the densest concentration in a band surrounding the at-the-money level, confirming that the most actively traded contracts are near-the-money options. The upward drift of the strike distribution mirrors the appreciation of the underlying spot price, indicating that market participants continuously recalibrate their hedging and speculative positions as BTC's price evolves.
+
+\subsection{Construction of Daily Closing Option Prices}
+\label{app:subsec:daily_closing_prices:1}
+
+Daily risk-neutral calibration requires a cross-section of option prices that refers, as closely as the data permit, to a common valuation time. If all transactions over a 24-hour period were pooled into one daily cross-section, differences across strikes and maturities would be confounded by intraday changes in the Bitcoin index, the implied-volatility state, and time to maturity. The resulting collection of prices would therefore not represent the option surface prevailing at any particular instant. This timing consideration is important for option-implied risk-neutral estimation, which treats prices across strikes as a contemporaneous cross-section \citep{AitSahaliaLo1998}. Recent empirical work on Bitcoin risk premia likewise illustrates the use of transaction-level option records organized at a daily frequency \citep{AlmeidaGrithMiftachovWang2024}.
+
+We anchor the daily cross-section at 08:00 UTC. This is the natural boundary of a Deribit trading day: Deribit performs its daily settlement at 08:00 UTC, and its inverse BTC options expire at that time \citep{DeribitSettlement2026}. Exact 08:00 transaction prices are generally unavailable because an option contract need not trade at that instant. We consequently construct a daily closing transaction panel from actual outright trades observed in a short interval centered on 08:00 UTC. This panel should not be interpreted as a synchronous order-book snapshot: contracts without a qualifying transaction are not imputed, and historical bid and ask quotations are not used.
+
+For each UTC date and each instrument, let $\mathcal{I}_{j,d}(h)$ denote the set of eligible trades in the interval $[08{:}00-h,08{:}00+h]$, where $h$ is the half-window width. Liquidations, combination-strategy legs, block trades, and RFQ (Request for quote) trades are excluded so that the retained observations represent regular outright market transactions. Our baseline closing price is the price of the eligible trade closest to 08:00,
+\begin{equation}
+ p^{\mathrm{close}}_{j,d}
+ =p_{i^{*},j,d}, \qquad
+ i^{*}=\arg\min_{i\in\mathcal{I}_{j,d}(h)}
+ \left|t_{i,j,d}-08{:}00\right|.
+ \label{app:eq:closest_closing_trade:1}
+\end{equation}
+If multiple transactions are equally close, the larger transaction is selected, followed by the larger trade identifier as a deterministic tie-breaker. To assess sensitivity to individual prints and bid--ask bounce, we also retain the quantity-weighted average price
+\begin{equation}
+ p^{\mathrm{VWAP}}_{j,d}(h)
+ =\frac{\sum_{i\in\mathcal{I}_{j,d}(h)}p_{i,j,d}q_{i,j,d}}
+ {\sum_{i\in\mathcal{I}_{j,d}(h)}q_{i,j,d}},
+ \label{app:eq:closing_vwap:1}
+\end{equation}
+and the median transaction price for robustness analysis. Prices are preserved in their original BTC units. USD-equivalent prices are recorded separately by multiplying the BTC premium by the contemporaneous Deribit BTC index; this conversion changes the unit of account but does not transform an asynchronous trade into an exact 08:00 price.
+
+Table~\ref{tab:closing_window_comparison} reports the coverage obtained from half-windows of one, two, and five minutes. The sample contains a qualifying transaction on every one of the 366 calendar days for all three specifications. A one-minute half-window produces only 22.27 distinct instruments per day on average, whereas a five-minute half-window increases average daily coverage to 73.82 instruments and yields 27,018 date--instrument observations over the year. The five-minute half-window, corresponding to 07:55--08:05 UTC, is therefore used to construct the preliminary closing panel. The closest-transaction price remains the baseline measure, while the five-minute VWAP and median price are retained for robustness checks. The shorter windows will be used to assess the sensitivity of the subsequent calibration to the trade-off between temporal synchronization and cross-sectional coverage.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lrrrrrr}
+\toprule
+Half-window & Full window & \multicolumn{2}{c}{Daily trades} & \multicolumn{2}{c}{Daily instruments} & Annual\\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+$h$ & width & Mean & Median & Mean & Median & observations\\
+\midrule
+$\pm 1$ minute  & 2 minutes  & 52.76  & 45  & 22.27 & 21 & 8,151\\
+$\pm 2$ minutes & 4 minutes  & 145.07 & 131 & 42.46 & 38 & 15,541\\
+$\pm 5$ minutes & 10 minutes & 411.99 & 366 & 73.82 & 66 & 27,018\\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Comparison of daily closing-price windows.} For every UTC date in 2024, the table summarizes eligible regular outright BTC inverse-option transactions in a window centered on 08:00 UTC. ``Daily instruments'' counts distinct contracts with at least one eligible trade, and ``Annual observations'' counts unique date--instrument pairs. Liquidations, combination-strategy legs, block trades, and RFQ trades are excluded. All three windows contain at least one eligible transaction on each of the 366 sample days.}
+\label{app:tab:closing_window_comparison:1}
+\end{table}
+
+\clearpage
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrrrr}
+\hline
+ & \multicolumn{2}{c}{$T$} & \multicolumn{2}{c}{$S_0/K$} & \multicolumn{2}{c}{$p$} \\
+ Percentile & Call & Put & Call & Put & Call & Put \\
+\hline
+Min & 0 & 0 & 0.17 & 0.17 & 0.0001 & 0.0001 \\
+$Q_1$ & 0 & 0 & 0.45 & 0.91 & 0.0001 & 0.0001 \\
+$Q_5$ & 1 & 0 & 0.68 & 0.98 & 0.0003 & 0.0003 \\
+$Q_{10}$ & 1 & 1 & 0.78 & 1.00 & 0.0006 & 0.0005 \\
+$Q_{20}$ & 1 & 1 & 0.87 & 1.00 & 0.0021 & 0.0015 \\
+$Q_{30}$ & 2 & 2 & 0.91 & 1.01 & 0.0042 & 0.0030 \\
+$Q_{40}$ & 3 & 3 & 0.94 & 1.03 & 0.0070 & 0.0050 \\
+$Q_{50}$ & 7 & 4 & 0.96 & 1.04 & 0.0105 & 0.0079 \\
+$Q_{60}$ & 11 & 8 & 0.97 & 1.06 & 0.0160 & 0.0115 \\
+$Q_{70}$ & 18 & 14 & 0.99 & 1.09 & 0.0255 & 0.0170 \\
+$Q_{80}$ & 31 & 22 & 1.00 & 1.13 & 0.0405 & 0.0270 \\
+$Q_{90}$ & 65 & 50 & 1.01 & 1.22 & 0.0715 & 0.0470 \\
+$Q_{95}$ & 114 & 80 & 1.04 & 1.36 & 0.1070 & 0.0720 \\
+$Q_{99}$ & 283 & 215 & 1.19 & 1.97 & 0.2325 & 0.1540 \\
+$Q_{99.9}$ & 354 & 343 & 2.10 & 4.71 & 0.5315 & 0.5701 \\
+$Q_{99.99}$ & 364 & 363 & 4.93 & 9.00 & 0.8110 & 2.1930 \\
+Max & 365 & 365 & 10.23 & 10.02 & 0.9025 & 4.8170 \\
+\hline
+\end{tabular}
+\caption{\textbf{Distributions of option characteristics}. The table presents percentiles for BTC call and put options' time to maturity ($T$), moneyness ($S_0/K$), and prices ($p$), with $Q_k$ representing the $k$-th percentile.}
+\label{app:tab:option_characteristics:1}
+\end{table}
+
+Tables 2 and 3 report the same three characteristics - time to maturity ($T$), moneyness ($S_0/K$), and price ($p$) - but Table 3 reweights each contract by traded volume rather than treating each observation equally. The comparison reveals a systematic shift in the bulk of the distribution once size is accounted for, while the extreme tails remain essentially unchanged.
+
+For maturity, the weighted median maturity roughly doubles relative to the unweighted median (calls: 7 $\to$ 14 days; puts: 4 $\to$ 9 days), and this pattern persists through the 90th percentile (calls: 65 $\to$ 98; puts: 50 $\to$ 65). This indicates that larger trades are disproportionately concentrated in longer-dated contracts, rather than in the very short-dated options that dominate the raw contract count.
+
+For moneyness, volume-weighting pulls the put-side distribution further out-of-the-money - the $Q_{90}$ for puts rises from 1.22 to 1.29 and $Q_{95}$
+from 1.36 to 1.45 - while the call side is little changed or slightly more concentrated near-the-money at the median (0.96 $\to$ 0.93). This asymmetry is consistent with large-size trading activity being driven by downside/tail-hedging demand rather than symmetric directional speculation.
+
+For price, reflecting both the longer maturities and deeper OTM put skew, weighted median prices are noticeably higher (calls: 0.0105 $\to$ 0.0162; puts: 0.0079 $\to$ 0.0105 BTC).
+
+Notably, the extreme upper tail ($Q_{99.9}$ and beyond) is nearly identical across both tables for all three characteristics, since these percentiles are anchored by the same small set of extreme contracts regardless of weighting. The divergence is therefore a genuine feature of the bulk of the distribution, not an artifact of outliers - a useful diagnostic if you weight your Q-calibration loss function by trade size, since doing so will implicitly shift emphasis toward longer-dated, more OTM put contracts relative to an unweighted (per-contract) loss.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrrrr}
+\hline
+ & \multicolumn{2}{c}{$T$} & \multicolumn{2}{c}{$S_0/K$} & \multicolumn{2}{c}{$p$} \\
+ Percentile & Call & Put & Call & Put & Call & Put \\
+\hline
+Min & 0 & 0 & 0.17 & 0.17 & 0.0001 & 0.0001 \\
+$Q_1$ & 0 & 0 & 0.42 & 0.91 & 0.0001 & 0.0001 \\
+$Q_5$ & 1 & 1 & 0.61 & 0.98 & 0.0005 & 0.0004 \\
+$Q_{10}$ & 1 & 1 & 0.70 & 1.00 & 0.0015 & 0.0009 \\
+$Q_{20}$ & 2 & 2 & 0.81 & 1.01 & 0.0042 & 0.0025 \\
+$Q_{30}$ & 5 & 3 & 0.87 & 1.02 & 0.0075 & 0.0047 \\
+$Q_{40}$ & 9 & 7 & 0.91 & 1.04 & 0.0110 & 0.0073 \\
+$Q_{50}$ & 14 & 9 & 0.93 & 1.06 & 0.0162 & 0.0105 \\
+$Q_{60}$ & 21 & 14 & 0.96 & 1.08 & 0.0235 & 0.0150 \\
+$Q_{70}$ & 35 & 21 & 0.97 & 1.12 & 0.0340 & 0.0212 \\
+$Q_{80}$ & 53 & 36 & 0.99 & 1.18 & 0.0505 & 0.0315 \\
+$Q_{90}$ & 98 & 65 & 1.00 & 1.29 & 0.0829 & 0.0535 \\
+$Q_{95}$ & 162 & 102 & 1.04 & 1.45 & 0.1210 & 0.0786 \\
+$Q_{99}$ & 273 & 226 & 1.23 & 2.21 & 0.2388 & 0.1520 \\
+$Q_{99.9}$ & 354 & 337 & 1.96 & 7.08 & 0.5075 & 0.3670 \\
+$Q_{99.99}$ & 364 & 363 & 3.52 & 9.71 & 0.7320 & 1.6420 \\
+Max & 365 & 365 & 10.23 & 10.02 & 0.9025 & 4.8170 \\
+\hline
+\end{tabular}
+\caption{\textbf{Weighted distributions of option characteristics}. The table presents percentiles for BTC call and put options' time to maturity ($T$), moneyness ($S_0/K$), and prices ($p$), with $Q_k$ representing the $k$-th percentile.}
+\label{app:tab:option_characteristics:2}
+\end{table}
+
+
+
+\clearpage
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrr}
+\hline
+Inverse BTC call option & Deep OTM & OTM & ITM & \\
+ & $\frac{S_0}{K} \leq 0.86$ & $0.86 < \frac{S_0}{K} \leq 1$ & $1 < \frac{S_0}{K}$ & Sum \\
+\hline
+Short-term: $T \leq 7$ & 0.8\% & 23.4\% & 4.4\% & 28.6\% \\
+Mid-term: $7 < T \leq 28$ & 2.8\% & 9.4\% & 2.4\% & 14.7\% \\
+Long-term: $28 < T$ & 6.4\% & 4.0\% & 1.3\% & 11.8\% \\
+Sum & 10.0\% & 36.9\% & 8.2\% & 55.1\% \\
+\hline
+Inverse BTC put option & ITM & OTM & Deep OTM & \\
+ & $\frac{S_0}{K} \leq 1$ & $1 < \frac{S_0}{K} \leq 1.12$ &  $1.12 < \frac{S_0}{K}$ & Sum \\
+\hline
+Short-term: $T \leq 7$ & 3.5\% & 20.4\% & 2.2\% & 26.1\% \\
+Mid-term: $7 < T \leq 28$ & 1.4\% & 6.2\% & 3.4\% & 11.1\% \\
+Long-term: $28 < T$ & 1.3\% & 2.3\% & 4.2\% & 7.7\% \\
+Sum & 6.2\% & 29.0\% & 9.8\% & 44.9\% \\
+\hline
+\end{tabular}
+\caption{\textbf{Maturity-moneyness categories}. The table delineates nine categories based on maturity-moneyness. Short-term, mid-term, and long-term options are defined by their time to maturity ($T$), while OTM, ITM, and deep OTM options are defined by their moneyness ($S_0/K$). The table reports the proportion (\%) of trades in each maturity-moneyness category.}
+\label{app:tab:maturity_moneyness_categories:1}
+
+\end{table}
+
+Tables 4 and 5 partition trading activity into a 3$\times$3 maturity-moneyness grid for calls and puts separately, contrasting the raw trade-count distribution (Table 4) with the quantity-weighted distribution (Table 5). Two consistent patterns emerge once volume is used as the weight instead of trade count.
+
+Shift from short-term to long-term. Under the unweighted count, short-term options ($T\le 7$) dominate both calls (28.6\%) and puts (26.1\%), while long-term options are the smallest bucket (11.8\% calls, 7.7\% puts). Weighting by quantity essentially reverses this ordering for calls: long-term rises to 20.5\%, roughly matching short-term's 21.7\%, while for puts the short-term share nearly halves (26.1\% $\to$ 17.6\%) and long-term rises modestly (7.7\% $\to$ 9.7\%). This confirms what Table 3 already suggested from the marginal maturity distribution — large trades cluster in longer-dated contracts, so a small number of big long-dated trades can rival a much larger number of small short-dated ones.
+
+Shift toward deep OTM, especially at long maturities. The clearest movement is in the OTM/deep-OTM composition. For calls, deep-OTM share more than doubles for the long-term bucket alone (6.4\% $\to$ 12.4\%), and the overall call deep-OTM sum rises from 10.0\% to 17.1\%. For puts, the deep-OTM long-term cell rises from 4.2\% to 5.6\%, and overall put deep-OTM rises from 9.8\% to 11.8\%, while the near-the-money OTM bucket shrinks correspondingly (put OTM sum: 29.0\% → 22.6\%). This is consistent with the earlier percentile analysis: large trades skew toward tail hedges rather than near-the-money speculative flow.
+
+Calls vs. puts asymmetry persists. Across both weighting schemes, calls retain a higher overall trading share than puts (55.1\% vs. 44.9\% unweighted; 60.6\% vs. 39.4\% weighted), and this gap widens under volume weighting — implying call-side activity is not just more frequent but carried out in larger size, plausibly reflecting basis-trade or covered-call-type flow that's naturally larger in inverse (BTC-margined) contracts.
+
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrr}
+\hline
+Inverse BTC call option & Deep OTM & OTM & ITM & \\
+ & $\frac{S_0}{K} \leq 0.86$ & $0.86 < \frac{S_0}{K} \leq 1$ & $1 < \frac{S_0}{K}$ & Sum \\
+\hline
+Short-term: $T \leq 7$ & 1.0\% & 17.5\% & 3.2\% & 21.7\% \\
+Mid-term: $7 < T \leq 28$ & 3.8\% & 12.4\% & 2.4\% & 18.5\% \\
+Long-term: $28 < T$ & 12.4\% & 6.2\% & 1.9\% & 20.5\% \\
+Sum & 17.1\% & 36.1\% & 7.4\% & 60.6\% \\
+\hline
+Inverse BTC put option & ITM & OTM & Deep OTM & \\
+ & $\frac{S_0}{K} \leq 1$ & $1 < \frac{S_0}{K} \leq 1.12$ &  $1.12 < \frac{S_0}{K}$ & Sum \\
+\hline
+Short-term: $T \leq 7$ & 2.3\% & 13.2\% & 2.0\% & 17.6\% \\
+Mid-term: $7 < T \leq 28$ & 1.4\% & 6.5\% & 4.2\% & 12.1\% \\
+Long-term: $28 < T$ & 1.3\% & 2.8\% & 5.6\% & 9.7\% \\
+Sum & 5.0\% & 22.6\% & 11.8\% & 39.4\% \\
+\hline
+\end{tabular}
+\caption{\textbf{Weighted Maturity-moneyness categories}. The table delineates nine categories based on maturity-moneyness. Short-term, mid-term, and long-term options are defined by $T \leq 7$, $7 < T \leq 28$, and $28 < T$, while OTM, ITM, and deep OTM options are defined by their moneyness ($S_0/K$). The table reports the proportion (\%) of trades in each maturity-moneyness category.}
+\label{app:tab:maturity_moneyness_categories:2}
+\end{table}
+
+
+\clearpage
+
+
+\begin{table}[h]
+\centering
+
+\begin{tabular}{lccc}
+\hline
+Inverse BTC call option & Deep OTM & OTM & ITM  \\
+ & $\frac{S_0}{K} \leq 0.86$ & $0.86 < \frac{S_0}{K} \leq 1$ & $1 < \frac{S_0}{K}$  \\
+\hline
+Short-term: $T \leq 7$ & \makecell{0.0008\\(0.0011)} & \makecell{0.0055\\(0.0061)} & \makecell{0.0326\\(0.0451)} \\
+Mid-term: $7 < T \leq 28$ & \makecell{0.0053\\(0.0050)} & \makecell{0.0231\\(0.0145)} & \makecell{0.0905\\(0.0830)} \\
+Long-term: $28 < T$ & \makecell{0.0374\\(0.0414)} & \makecell{0.0782\\(0.0461)} & \makecell{0.1873\\(0.1243)} \\
+\hline
+Inverse BTC put option & ITM & OTM & Deep OTM \\
+ & $\frac{S_0}{K} \leq 1$ & $1 < \frac{S_0}{K} \leq 1.12$ &  $1.12 < \frac{S_0}{K}$ \\
+\hline
+Short-term: $T \leq 7$ & \makecell{0.0252\\(0.0319)} & \makecell{0.0053\\(0.0057)} & \makecell{0.0011\\(0.0015)} \\
+Mid-term: $7 < T \leq 28$ & \makecell{0.0641\\(0.0569)} & \makecell{0.0220\\(0.0120)} & \makecell{0.0052\\(0.0044)} \\
+Long-term: $28 < T$ & \makecell{0.1761\\(0.2642)} & \makecell{0.0594\\(0.0275)} & \makecell{0.0202\\(0.0200)} \\
+\hline
+\end{tabular}
+\caption{\textbf{Average Prices in BTC and standard deviations of inverse options}. This table displays the mean prices and standard deviations in parentheses for options across each maturity-moneyness category.}
+\label{app:tab:average_prices_inverse_options:1}
+\end{table}
+
+\begin{table}
+\centering
+
+\begin{tabular}{lccc}
+\hline
+Inverse BTC call option & Deep OTM & OTM & ITM  \\
+ & $\frac{S_0}{K} \leq 0.86$ & $0.86 < \frac{S_0}{K} \leq 1$ & $1 < \frac{S_0}{K}$  \\
+\hline
+Short-term: $T \leq 7$ & \makecell{0.0007\\(0.0011)} & \makecell{0.0069\\(0.0068)} & \makecell{0.0415\\(0.0522)} \\
+Mid-term: $7 < T \leq 28$ & \makecell{0.0058\\(0.0055)} & \makecell{0.0230\\(0.0143)} & \makecell{0.0968\\(0.0849)} \\
+Long-term: $28 < T$ & \makecell{0.0369\\(0.0371)} & \makecell{0.0726\\(0.0413)} & \makecell{0.1787\\(0.1067)} \\
+\hline
+Inverse BTC put option & ITM & OTM & Deep OTM \\
+ & $\frac{S_0}{K} \leq 1$ & $1 < \frac{S_0}{K} \leq 1.12$ &  $1.12 < \frac{S_0}{K}$ \\
+\hline
+Short-term: $T \leq 7$ & \makecell{0.0292\\(0.0369)} & \makecell{0.0067\\(0.0064)} & \makecell{0.0013\\(0.0017)} \\
+Mid-term: $7 < T \leq 28$ & \makecell{0.0649\\(0.0507)} & \makecell{0.0212\\(0.0118)} & \makecell{0.0053\\(0.0046)} \\
+Long-term: $28 < T$ & \makecell{0.1366\\(0.1660)} & \makecell{0.0566\\(0.0276)} & \makecell{0.0205\\(0.0193)} \\
+\hline
+\end{tabular}
+\caption{Weighted average prices in BTC and standard deviations of inverse options. This table displays the mean prices and standard deviations in parentheses for options across each maturity-moneyness category.}
+\label{app:tab:average_prices_inverse_options:2}
+\end{table}
+
+Tables 6 and 7 report mean BTC-denominated prices (with standard deviations) across the same nine maturity-moneyness buckets, unweighted per-contract versus weighted by traded quantity. Three patterns stand out.
+
+Monotonicity confirms internal consistency. Within both tables, prices rise monotonically with maturity for every moneyness bucket (as expected from time value), and rise monotonically with moneyness for calls (deep OTM cheapest, ITM most expensive) while falling monotonically with moneyness for puts. This is a useful sanity check: the data respects basic no-arbitrage ordering before any model fitting is applied, so any monotonicity violations you find later in the pricing kernel estimate can't be traced back to a raw data pathology at this level.
+
+Weighting effects are asymmetric and bucket-specific, not uniform. Rather than a systematic upward or downward shift, quantity-weighting moves prices in different directions depending on the cell. Sh4ort-term ITM calls are notably more expensive when weighted (0.0326 → 0.0415), suggesting large trades in that bucket occurred disproportionately during high-price/high-vol windows. Conversely, long-term ITM puts are substantially cheaper when weighted (0.1761 → 0.1366) and long-term ITM calls slightly cheaper (0.1873 → 0.1787), suggesting the largest long-dated trades cluster in calmer pricing environments than the per-contract average implies. This bucket-dependent divergence means a single "volume-weighting effect" can't be assumed uniformly across your calibration grid — it needs to be checked cell by cell.
+
+Dispersion is highest exactly where large trades concentrate. The standard deviations are large relative to the means in the long-term ITM buckets — long-term ITM puts show a standard deviation (0.2642 unweighted) that actually exceeds the mean (0.1761), a coefficient of variation above 1. Long-term deep-OTM calls show similar relative dispersion (0.0414 vs. mean 0.0374). Given that Tables 4–5 showed these same long-term/deep buckets are exactly where quantity-weighting shifts trading share upward, this dispersion is plausibly driven by the discrete macro-jump episodes (March, August, November) identified earlier — large trades executed in these buckets during the year likely span both pre- and post-jump price regimes, inflating within-bucket variance.
+
+
+
+
+\clearpage
+
 \end{document}
