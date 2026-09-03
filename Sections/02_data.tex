@@ -105,6 +105,10 @@ None & 24 h & 13,595.34 & 12,435.5 & 508.84 & 501.5 & 186,237 \\
 \end{table}
 
 
+Tables~\ref{tab:filtered_option_characteristics} and~\ref{tab:filtered_weighted_option_characteristics} summarize the same three characteristics---time to maturity ($T$), moneyness ($S_0/K$), and BTC-denominated closing price ($p$)---using observation weights and transaction-quantity weights, respectively. Quantity weighting shifts the medians toward shorter maturities (calls: 7.00 to 5.99 days; puts: 4.99 to 3.00 days) and lower prices (calls: 0.0095 to 0.0080 BTC; puts: 0.0075 to 0.0055 BTC). Median moneyness changes little, although the upper tail of put moneyness becomes heavier; for example, its 99th percentile rises from 2.16 to 2.56. These differences show that trade size is not distributed uniformly across contracts and motivate reporting both weighting schemes rather than treating quantity weighting as a neutral rescaling.
+
+
+
 \begin{table}[htbp]
 \centering
 \begin{tabular}{lrrrrrr}
@@ -136,7 +140,6 @@ Max & 364.01 & 364.00 & 9.50 & 8.75 & 0.8960 & 2.1050 \\
 \end{table}
 
 
-Tables~\ref{tab:filtered_option_characteristics} and~\ref{tab:filtered_weighted_option_characteristics} summarize the same three characteristics---time to maturity ($T$), moneyness ($S_0/K$), and BTC-denominated closing price ($p$)---using observation weights and transaction-quantity weights, respectively. Quantity weighting shifts the medians toward shorter maturities (calls: 7.00 to 5.99 days; puts: 4.99 to 3.00 days) and lower prices (calls: 0.0095 to 0.0080 BTC; puts: 0.0075 to 0.0055 BTC). Median moneyness changes little, although the upper tail of put moneyness becomes heavier; for example, its 99th percentile rises from 2.16 to 2.56. These differences show that trade size is not distributed uniformly across contracts and motivate reporting both weighting schemes rather than treating quantity weighting as a neutral rescaling.
 
 
 \begin{table}[htbp]
@@ -223,6 +226,8 @@ Sum & 5.6\% & 26.6\% & 11.1\% & 43.3\% \\
 \end{tabular}
 \end{table}
 
+Tables~\ref{tab:filtered_average_prices_inverse_options} and~\ref{tab:filtered_weighted_average_prices_inverse_options} report mean BTC-denominated prices and standard deviations across the same grid. In both tables, average prices generally increase with maturity and intrinsic value, providing a basic internal-consistency check. Quantity weighting is nevertheless economically meaningful and bucket-specific: for example, the mean short-term ITM call price falls from 0.0449 to 0.0303 BTC, and the mean long-term ITM put price falls from 0.1696 to 0.1347 BTC. The weighted and unweighted summaries are therefore retained as complementary descriptions of the calibration sample.
+
 \begin{table}[htbp]
 \centering
 \caption{\textbf{Average prices for 15-minute filtered inverse options.} Cells report mean prices in BTC, with standard deviations in parentheses.}
@@ -269,7 +274,7 @@ Long-term: $28 < T$ & \makecell{0.1347\\(0.1054)} & \makecell{0.0592\\(0.0304)} 
 \end{tabular}
 \end{table}
 
-Tables~\ref{tab:filtered_average_prices_inverse_options} and~\ref{tab:filtered_weighted_average_prices_inverse_options} report mean BTC-denominated prices and standard deviations across the same grid. In both tables, average prices generally increase with maturity and intrinsic value, providing a basic internal-consistency check. Quantity weighting is nevertheless economically meaningful and bucket-specific: for example, the mean short-term ITM call price falls from 0.0449 to 0.0303 BTC, and the mean long-term ITM put price falls from 0.1696 to 0.1347 BTC. The weighted and unweighted summaries are therefore retained as complementary descriptions of the calibration sample.
+
 
 % Prevent Data-section floats from appearing after the Methodology heading.
 \clearpage
