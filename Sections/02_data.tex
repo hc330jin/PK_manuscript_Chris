@@ -47,10 +47,10 @@ Daily risk-neutral calibration requires a cross-section of option prices that re
     \centering
     \includegraphics[width=\linewidth]{Sections/02_data_figures/Daily_traded_quantity.png}
     \caption{Daily accumulated trades and quantities}
-    \label{fig:placeholder}
+    \label{fig:2024_daily_accu_trades_and_q}
 \end{figure}
 
-Figure 2 shows daily trading activity throughout 2024, with the number of trades fluctuating between approximately 5,000 and 45,000 per day and total daily quantity ranging between 5,000 and 90,000 BTC notional. Two prominent spikes in both trades and quantity are visible around late February to early March and late July to early August 2024, coinciding with periods of elevated Bitcoin price volatility and heightened hedging demand. The overall level of activity confirms that the Deribit market is sufficiently liquid to support the daily cross-sectional calibration undertaken in this thesis.
+Figure~\ref{fig:2024_daily_accu_trades_and_q} shows daily trading activity throughout 2024, with the number of trades fluctuating between approximately 5,000 and 45,000 per day and total daily quantity ranging between 5,000 and 90,000 BTC notional. Two prominent spikes in both trades and quantity are visible around late February to early March and late July to early August 2024, coinciding with periods of elevated Bitcoin price volatility and heightened hedging demand. The overall level of activity confirms that the Deribit market is sufficiently liquid to support the daily cross-sectional calibration undertaken in this thesis.
 
 \clearpage
 
@@ -59,13 +59,13 @@ Figure 2 shows daily trading activity throughout 2024, with the number of trades
     \includegraphics[width=\linewidth]{Sections/02_data_figures/Strike price for the intraday of inverse options.png}
     \caption{Visualizing strike prices for the intraday transaction of inverse
 options}
-    \label{fig:placeholder}
+    \label{fig:Prices_for_cp}
 \end{figure}
 
-Figure 3 illustrates the cross-sectional distribution of strike prices across the full year for calls (blue) and puts (red), with the black line tracing the daily spot price. Strikes span more than two orders of magnitude on a logarithmic scale – from approximately \$10,000 to \$1,000,000 – with the densest concentration in a band surrounding the at-the-money level, confirming that the most actively traded contracts are near-the-money options. The upward drift of the strike distribution mirrors the appreciation of the underlying spot price, indicating that market participants continuously recalibrate their hedging and speculative positions as BTC's price evolves.
+Figure~\ref{fig:Prices_for_cp} illustrates the cross-sectional distribution of strike prices across the full year for calls (blue) and puts (red), with the black line tracing the daily spot price. Strikes span more than two orders of magnitude on a logarithmic scale – from approximately \$10,000 to \$1,000,000 – with the densest concentration in a band surrounding the at-the-money level, confirming that the most actively traded contracts are near-the-money options. The upward drift of the strike distribution mirrors the appreciation of the underlying spot price, indicating that market participants continuously recalibrate their hedging and speculative positions as BTC's price evolves.
 
 
-For each UTC date and each instrument, let $\mathcal{I}_{j,d}(h)$ denote the set of eligible trades in the interval $[08{:}00-h,08{:}00+h]$, where $h$ is the half-window width. Liquidations, combination-strategy legs, block trades, and RFQ trades are excluded. The baseline closing price is the eligible trade closest to 08:00,
+For each UTC date and each instrument, let $\mathcal{I}_{j,d}(h)$ denote the set of eligible trades in the interval $[08{:}00-h,08{:}00+h]$, where $h$ is the half-window width. Liquidations, combination-strategy legs, block trades, and RFQ (Request for Quote) trades are excluded. The baseline closing price is the eligible trade closest to 08:00,
 \begin{equation}
  p^{\mathrm{close}}_{j,d}
  =p_{i^{*},j,d}, \qquad
