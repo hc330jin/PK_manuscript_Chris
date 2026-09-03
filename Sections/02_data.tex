@@ -60,7 +60,7 @@ If multiple transactions are equally close, the larger transaction is selected, 
 \end{equation}
 and the median transaction price for robustness analysis. This panel is not an order-book snapshot: contracts without a qualifying transaction are not imputed.
 
-Table~\ref{tab:closing_window_comparison_15min} compares 08:00-centered bandwidths from one to thirty minutes. Wider windows increase the number of available date--contract observations, but also move the selected trade farther from the target valuation time. The 15-minute half-window provides a practical compromise: it increases annual coverage from 27,018 observations under the five-minute window to 46,788 observations, and it captures a meaningfully broader set of longer-maturity contracts while retaining a tight 30-minute calendar window around the settlement time. We therefore use the 15-minute filtered panel as the experimental option dataset.
+Table~\ref{tab:closing_window_comparison_15min} compares 08:00-centered bandwidths from one to thirty minutes and reports the full UTC day as an unfiltered benchmark. Wider windows increase the number of available date--contract observations, but also move the selected trade farther from the target valuation time. With no bandwidth restriction, the data contain 186,237 date--instrument observations, but these trades may occur anywhere within the same UTC day and therefore do not form a contemporaneous closing cross-section. The 15-minute half-window provides a practical compromise: it increases annual coverage from 27,018 observations under the five-minute window to 46,788 observations, and it captures a meaningfully broader set of longer-maturity contracts while retaining a tight 30-minute calendar window around the settlement time. We therefore use the 15-minute filtered panel as the experimental option dataset.
 
 \begin{figure}[htbp]
     \centering
@@ -97,9 +97,10 @@ $\pm 10$ min & 20 min & 607.66 & 557 & 105.27 & 96 & 38,528 \\
 $\pm 15$ min & 30 min & 756.87 & 698 & 127.84 & 118 & 46,788 \\
 $\pm 20$ min & 40 min & 895.96 & 819 & 146.49 & 137 & 53,616 \\
 $\pm 30$ min & 60 min & 1151.52 & 1034 & 176.33 & 166 & 64,537 \\
+None & 24 h & 13,595.34 & 12,435.5 & 508.84 & 501.5 & 186,237 \\
 \bottomrule
 \end{tabular}
-\caption{\textbf{Comparison of daily closing-price windows.} For every UTC date in 2024, the table summarizes eligible regular outright BTC inverse-option transactions in a window centered on 08:00 UTC. ``Daily instruments'' is the number of distinct contracts with at least one eligible trade, and ``Annual observations'' is the number of unique date--instrument pairs.}
+\caption{\textbf{Comparison of daily closing-price windows.} For every UTC date in 2024, the table summarizes eligible regular outright BTC inverse-option transactions. The symmetric windows are centered on 08:00 UTC; the final row uses the entire UTC calendar day as an unfiltered benchmark. ``Daily instruments'' is the number of distinct contracts with at least one eligible trade, and ``Annual observations'' is the number of unique date--instrument pairs.}
 \label{tab:closing_window_comparison_15min}
 \end{table}
 
