@@ -106,8 +106,6 @@ All maturity-related tables below use accurate time to maturity, measured from t
 
 \begin{table}[htbp]
 \centering
-\caption{\textbf{Comparison of daily closing-price windows.} For every UTC date in 2024, the table summarizes eligible regular outright BTC inverse-option transactions in a window centered on 08:00 UTC. Daily instruments counts distinct contracts with at least one eligible trade, and annual observations counts unique date--instrument pairs.}
-\label{tab:closing_window_comparison_15min}
 \begin{tabular}{lrrrrrr}
 \toprule
 Half-window & Full window & \multicolumn{2}{c}{Daily trades} & \multicolumn{2}{c}{Daily instruments} & Annual\\
@@ -123,16 +121,16 @@ $\pm 20$ min & 40 min & 895.96 & 819 & 146.49 & 137 & 53,616 \\
 $\pm 30$ min & 60 min & 1151.52 & 1034 & 176.33 & 166 & 64,537 \\
 \bottomrule
 \end{tabular}
+\caption{\textbf{Comparison of daily closing-price windows.} For every UTC date in 2024, the table summarizes eligible regular outright BTC inverse-option transactions in a window centered on 08:00 UTC. Daily instruments counts distinct contracts with at least one eligible trade, and annual observations counts unique date--instrument pairs.}
+\label{tab:closing_window_comparison_15min}
 \end{table}
 
 
 \begin{table}[h]
 \centering
-\caption{\textbf{Distributions of 15-minute filtered option characteristics}. The table presents percentiles for BTC call and put options' accurate time to maturity ($T$), moneyness ($S_0/K$), and closest transaction prices ($p$).}
-\label{tab:filtered_option_characteristics}
 \begin{tabular}{lrrrrrr}
 \hline
- & \multicolumn{2}{c}{T} & \multicolumn{2}{c}{S0/K} & \multicolumn{2}{c}{p} \\
+ & \multicolumn{2}{c}{$T$} & \multicolumn{2}{c}{$S_0/K$} & \multicolumn{2}{c}{$p$} \\
  & Call & Put & Call & Put & Call & Put \\
 \hline
 Min & 0.00 & 0.00 & 0.19 & 0.29 & 0.0001 & 0.0001 \\
@@ -154,10 +152,12 @@ $Q_{99.99}$ & 364.00 & 362.00 & 6.14 & 7.60 & 0.8379 & 1.7365 \\
 Max & 364.01 & 364.00 & 9.50 & 8.75 & 0.8960 & 2.1050 \\
 \hline
 \end{tabular}
+\caption{\textbf{Distributions of 15-minute filtered option characteristics}. The table presents percentiles for BTC call and put options' accurate time to maturity ($T$), moneyness ($S_0/K$), and closest transaction prices ($p$).}
+\label{tab:filtered_option_characteristics}
 \end{table}
 
 
-Tables 2 and 3 report the same three characteristics - time to maturity ($T$), moneyness ($S_0/K$), and price ($p$) - but Table \ref{tab:weighted_option_characteristics} reweights each contract by traded volume rather than treating each observation equally. The comparison reveals a systematic shift in the bulk of the distribution once size is accounted for, while the extreme tails remain essentially unchanged.
+Tables~\ref{tab:closing_window_comparison_15min} and~\ref{tab:filtered_option_characteristics} report the same three characteristics - time to maturity ($T$), moneyness ($S_0/K$), and price ($p$) - but Table \ref{tab:weighted_option_characteristics} reweights each contract by traded volume rather than treating each observation equally. The comparison reveals a systematic shift in the bulk of the distribution once size is accounted for, while the extreme tails remain essentially unchanged.
 
 For maturity, the weighted median maturity roughly doubles relative to the unweighted median (calls: 7 $\to$ 14 days; puts: 4 $\to$ 9 days), and this pattern persists through the 90th percentile (calls: 65 $\to$ 98; puts: 50 $\to$ 65). This indicates that larger trades are disproportionately concentrated in longer-dated contracts, rather than in the very short-dated options that dominate the raw contract count.
 
@@ -175,7 +175,7 @@ Notably, the extreme upper tail ($Q_{99.9}$ and beyond) is nearly identical acro
 \label{tab:filtered_weighted_option_characteristics}
 \begin{tabular}{lrrrrrr}
 \hline
- & \multicolumn{2}{c}{T} & \multicolumn{2}{c}{S0/K} & \multicolumn{2}{c}{p} \\
+ & \multicolumn{2}{c}{$T$} & \multicolumn{2}{c}{$S_0/K$} & \multicolumn{2}{c}{$p$} \\
  & Call & Put & Call & Put & Call & Put \\
 \hline
 Min & 0.00 & 0.00 & 0.19 & 0.29 & 0.0001 & 0.0001 \\
