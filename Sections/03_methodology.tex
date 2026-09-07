@@ -252,9 +252,51 @@ bounds are
 &=(0.00005,0.05,0.00005,0.005,-0.999,
    0.00005,-0.50,0.005,-8.0,0.0005)^{\prime},\\
 \boldsymbol{u}
-&=(0.01000,3.00,0.01000,0.200,0.500,
+&=(0.01000,2.00,0.01000,0.200,0.500,
    0.05000,0.80,0.500,2.0,0.1000)^{\prime}.
 \end{align*}
+
+These bounds are economically and numerically motivated regularization
+restrictions rather than parameter ranges copied mechanically from a single
+empirical study.  The support restrictions require
+$V_0,\theta,\sigma_v,\lambda,\sigma_y,$ and $\mu_v$ to be positive, and
+$\rho$ to lie strictly inside the correlation interval.  Because Bitcoin
+trades continuously, the daily-variance bounds
+$V_0,\theta\in[0.00005,0.01]$ correspond to annualized diffusive
+volatilities of approximately 13.5\% to 191\% under a 365-day convention,
+which accommodates both tranquil and stressed cryptocurrency regimes.  The
+Brownian correlation range $\rho\in[-0.999,0.5]$ permits the empirically
+important negative return--variance leverage channel while retaining moderate
+positive dependence as a possibility.  The daily jump-probability range
+$\lambda\in[0.00005,0.05]$ corresponds to approximately 0.018 to 18.25
+expected jump days per year and prevents the jump component from becoming
+either exactly absent or observationally indistinguishable from a high-frequency
+diffusion.
+
+The remaining jump-size bounds are deliberately broad.  The interval
+$\mu_y\in[-0.5,0.8]$ permits large negative and positive conditional log-price
+jumps, while $\sigma_y\in[0.005,0.5]$ permits substantial jump-size
+dispersion.  The parameter $\rho_J\in[-8,2]$ is a loading of the variance jump
+in the conditional mean of the return jump, not a correlation coefficient;
+its negative region permits crashes to coincide with upward variance jumps.
+Together with $\mu_v\in[0.0005,0.1]$, these bounds guarantee
+$1-\rho_J\mu_v>0$ throughout the search region, so the risk-neutral jump
+compensator in equation~\eqref{eq:q_svcj_jump_compensator} remains finite.
+
+Finally, $\kappa\in[0.05,2]$ imposes positive variance mean reversion and is
+adapted to the daily Euler implementation rather than taken directly from
+continuous-time equity-index estimates.  In the shock-free Euler recursion,
+the coefficient on lagged variance is $1-\kappa$; setting the upper bound to
+two rules out coefficients with absolute value greater than one and therefore
+excludes mechanically explosive mean-reversion dynamics.  The endpoint
+$\kappa=2$ is retained as a numerical boundary but is not strictly
+contractive.  We do not separately impose the diffusion Feller condition
+$2\kappa\theta\geq\sigma_v^2$, because the data-generating calibration used
+in the recovery experiment need not satisfy it and the implementation instead
+enforces nonnegative simulated variance through full truncation.  Boundary-hit
+frequencies are reported as an identification diagnostic; systematic contact
+with a bound would motivate a dedicated sensitivity calibration rather than an
+economic interpretation of the constrained estimate.
 
 We use four deterministic mild-SV initial vectors. They begin from
 economically regular stochastic-volatility regimes while holding the jump
