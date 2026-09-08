@@ -231,11 +231,19 @@ For every replication and value of $n$, the ten parameters are estimated by
 bounded nonlinear least squares using MATLAB's trust-region-reflective
 \texttt{lsqnonlin} algorithm. The relative residual for contract $i$ is
 \begin{equation}
-r_i(\boldsymbol{\theta})
-=\frac{P_i^{\mathrm{obs}}
-       -P_i^{\mathrm{model}}(\boldsymbol{\theta})}
-       {\max\{P_i^{\mathrm{obs}},10^{-4}S_0\}},
-\label{eq:q_relative_residual}
+r_i^{USD}(\boldsymbol{\theta})
+=\frac{P_i^{\mathrm{obs, USD}}
+       -P_i^{\mathrm{model, USD}}(\boldsymbol{\theta})}
+       {\max\{P_i^{\mathrm{obs, USD}},10^{-4}S_0\}},
+\label{eq:q_relative_residual_USD}
+\end{equation}
+or equivalently
+\begin{equation}
+r_i^{BTC}(\boldsymbol{\theta})
+=\frac{P_i^{\mathrm{obs, BTC}}
+       -P_i^{\mathrm{model, BTC}}(\boldsymbol{\theta})}
+       {\max\{P_i^{\mathrm{obs, BTC}},10^{-4}\}},
+\label{eq:q_relative_residual_BTC}
 \end{equation}
 and the estimator minimizes
 \begin{equation}
