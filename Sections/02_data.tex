@@ -84,20 +84,20 @@ All maturity-related tables below use accurate time to maturity, measured from t
 
 \begin{table}[htbp]
 \centering
-\begin{tabular}{lrrrrrr}
+\begin{tabular}{lrrrrrrr}
 \toprule
-Half-window & Full window & \multicolumn{2}{c}{Daily trades} & \multicolumn{2}{c}{Daily instruments} & Annual\\
+Half-window & Full window & \multicolumn{2}{c}{Daily trades} & \multicolumn{2}{c}{Daily instruments} & Annual & Reserved\\
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}
-$h$ & width & Mean & Median & Mean & Median & observations\\
+$h$ & width & Mean & Median & Mean & Median & observations & percentage\\
 \midrule
-$\pm 1$ min & 2 min & 52.76 & 45 & 22.27 & 21 & 8,151 \\
-$\pm 2$ min & 4 min & 145.07 & 131 & 42.46 & 38 & 15,541 \\
-$\pm 5$ min & 10 min & 411.99 & 366 & 73.82 & 66 & 27,018 \\
-$\pm 10$ min & 20 min & 607.66 & 557 & 105.27 & 96 & 38,528 \\
-$\pm 15$ min & 30 min & 756.87 & 698 & 127.84 & 118 & 46,788 \\
-$\pm 20$ min & 40 min & 895.96 & 819 & 146.49 & 137 & 53,616 \\
-$\pm 30$ min & 60 min & 1151.52 & 1034 & 176.33 & 166 & 64,537 \\
-None & 24 h & 13,595.34 & 12,435.5 & 508.84 & 501.5 & 186,237 \\
+$\pm 1$ min & 2 min & 52.76 & 45 & 22.27 & 21 & 8,151 & 4.38\%\\
+$\pm 2$ min & 4 min & 145.07 & 131 & 42.46 & 38 & 15,541 & 8.34\%\\
+$\pm 5$ min & 10 min & 411.99 & 366 & 73.82 & 66 & 27,018 & 14.51\%\\
+$\pm 10$ min & 20 min & 607.66 & 557 & 105.27 & 96 & 38,528 & 20.69\%\\
+$\pm 15$ min & 30 min & 756.87 & 698 & 127.84 & 118 & 46,788 & 25.12\%\\
+$\pm 20$ min & 40 min & 895.96 & 819 & 146.49 & 137 & 53,616 & 28.79\%\\
+$\pm 30$ min & 60 min & 1151.52 & 1034 & 176.33 & 166 & 64,537 & 34.65\%\\
+None & 24 h & 13,595.34 & 12,435.5 & 508.84 & 501.5 & 186,237 & 100\%\\
 \bottomrule
 \end{tabular}
 \caption{\textbf{Comparison of daily closing-price windows.} For every UTC date in 2024, the table summarizes eligible regular outright BTC inverse-option transactions. The symmetric windows are centered on 08:00 UTC; the final row uses the entire UTC calendar day as an unfiltered benchmark. ``Daily instruments'' is the number of distinct contracts with at least one eligible trade, and ``Annual observations'' is the number of unique date--instrument pairs.}
