@@ -51,14 +51,7 @@ For each UTC date and each instrument, let $\mathcal{I}_{j,d}(h)$ denote the set
  \left|t_{i,j,d}-08{:}00\right|.
  \label{eq:closest_closing_trade}
 \end{equation}
-If multiple transactions are equally close, the larger transaction is selected, followed by the larger trade identifier as a deterministic tie-breaker. We also retain the quantity-weighted average price,
-\begin{equation}
- p^{\mathrm{VWAP}}_{j,d}(h)
- =\frac{\sum_{i\in\mathcal{I}_{j,d}(h)}p_{i,j,d}q_{i,j,d}}
- {\sum_{i\in\mathcal{I}_{j,d}(h)}q_{i,j,d}},
- \label{eq:closing_vwap}
-\end{equation}
-and the median transaction price for robustness analysis. This panel is not an order-book snapshot: contracts without a qualifying transaction are not imputed.
+If multiple transactions are equally close, the larger transaction is selected, followed by the larger trade identifier as a deterministic tie-breaker.For diagonostic purposes, the constructed dataset also records the quantity-weighted average price and median transaction price within each window. These alternative price measures are not used in the baseline calibration, which relies exclusively on the transaction closest to 08:00 UTC. This panel is not an order-book snapshot: contracts without a qualifying transaction are not imputed.
 
 Table~\ref{tab:closing_window_comparison_15min} compares 08:00-centered bandwidths from one to thirty minutes and reports the full UTC day as an unfiltered benchmark. Wider windows increase the number of available date--contract observations, but also move the selected trade farther from the target valuation time. With no bandwidth restriction, the data contain 186,237 date--instrument observations, but these trades may occur anywhere within the same UTC day and therefore do not form a contemporaneous closing cross-section. The 15-minute half-window provides a practical compromise: it increases annual coverage from 27,018 observations under the five-minute window to 46,788 observations, and it captures a meaningfully broader set of longer-maturity contracts while retaining a tight 30-minute calendar window around the settlement time. We therefore use the 15-minute filtered panel as the experimental option dataset.
 
