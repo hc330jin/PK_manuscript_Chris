@@ -13,11 +13,11 @@ Bitcoin spot prices are sourced at daily frequency and exhibit a pronounced bull
 
 The corresponding daily log return series (Figure~\ref{fig:btc_spot_log_returns_2024}, right panel) reveals the key distributional features that motivate the SVCJ modeling framework adopted in this thesis. Table~\ref{tab:btc_log_return_descriptive_statistics} reports descriptive statistics for daily Bitcoin log returns over the full sample period from 2014 to 2024. The mean daily return of 0.001371 corresponds to an annualized return of approximately 50\%, yet the near-zero median of 0.000000 reveals that this long-run appreciation is driven by a small number of extraordinary return days rather than steady drift---a hallmark of a jump-driven process. The standard deviation of 0.034990 implies an annualized volatility of approximately 67\%, reflecting the repeated boom-and-bust cycles that characterize the decade, including the 2017--2018 crash, the March 2020 COVID collapse, and the 2021--2022 drawdown exceeding 70\%.
 
-The distributional shape departs dramatically from normality along both dimensions of the Jarque-Bera decomposition. Skewness of -0.427 indicates a pronounced left tail: the largest single-day loss of -31.7\% substantially exceeds the largest single-day gain of +19.1\% in magnitude, reflecting crash episodes that pull the distribution asymmetrically downward and generate a downside jump risk premium embedded in Bitcoin option prices. Kurtosis of 9.754 — more than three times the Gaussian benchmark of 3 — confirms that extreme return realizations occur far more frequently than any normal distribution would predict. Jointly, these features produce a Jarque-Bera statistic of 7,527.47, constituting a categorical rejection of normality at any conventional significance level and closing the door on Black-Scholes as a viable pricing framework. These distributional facts collectively motivate the SVCJ specification adopted in this thesis, which explicitly accommodates stochastic volatility, correlated price jumps, and correlated volatility jumps as the minimum viable structure for capturing Bitcoin's return dynamics.
+The distributional shape departs dramatically from normality along both dimensions of the Jarque-Bera decomposition. Skewness of $-0.427$ indicates a pronounced left tail: the largest single-day loss of $-31.7$\% substantially exceeds the largest single-day gain of +19.1\% in magnitude, reflecting crash episodes that pull the distribution asymmetrically downward and generate a downside jump risk premium embedded in Bitcoin option prices. Kurtosis of 9.754 — more than three times the Gaussian benchmark of 3 — confirms that extreme return realizations occur far more frequently than any normal distribution would predict. Jointly, these features produce a Jarque-Bera statistic of 7,527.47, constituting a categorical rejection of normality at any conventional significance level and closing the door on Black-Scholes as a viable pricing framework. These distributional facts collectively motivate the SVCJ specification adopted in this thesis, which explicitly accommodates stochastic volatility, correlated price jumps, and correlated volatility jumps as the minimum viable structure for capturing Bitcoin's return dynamics.
 
 \begin{table}[htbp]
     \centering
-    \begin{tabular}{cc}
+    \begin{tabular}{cr}
     \hline
     \multicolumn{2}{c}{Descriptive statistics} \\
     \hline
@@ -62,25 +62,8 @@ and the median transaction price for robustness analysis. This panel is not an o
 
 Table~\ref{tab:closing_window_comparison_15min} compares 08:00-centered bandwidths from one to thirty minutes and reports the full UTC day as an unfiltered benchmark. Wider windows increase the number of available date--contract observations, but also move the selected trade farther from the target valuation time. With no bandwidth restriction, the data contain 186,237 date--instrument observations, but these trades may occur anywhere within the same UTC day and therefore do not form a contemporaneous closing cross-section. The 15-minute half-window provides a practical compromise: it increases annual coverage from 27,018 observations under the five-minute window to 46,788 observations, and it captures a meaningfully broader set of longer-maturity contracts while retaining a tight 30-minute calendar window around the settlement time. We therefore use the 15-minute filtered panel as the experimental option dataset.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\linewidth]{Sections/02_data_figures/Daily_traded_quantity_15min_filtered.png}
-    \caption{\textbf{Daily trading activity in the 15-minute closing window.} The upper panel reports the number of eligible BTC inverse-option trades, and the lower panel reports their total contract quantity within 07:45--08:15 UTC on each date in 2024.}
-    \label{fig:daily_quantity_15min_filtered}
-\end{figure}
 
-Figure~\ref{fig:daily_quantity_15min_filtered} shows trading activity inside the 15-minute closing window. The number of trades and total quantity vary substantially over time, with visible bursts around periods of elevated Bitcoin market activity. Since each retained date--contract observation is constructed from actual transactions near 08:00 UTC, the panel balances contemporaneous cross-sectional pricing with sufficient coverage for daily calibration.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\linewidth]{Sections/02_data_figures/Strike_price_15min_filtered_inverse_options.png}
-    \caption{\textbf{Strike distribution in the 15-minute closing panel.} Calls and puts are shown separately; the black line is the contemporaneous BTC index-price proxy. Strike and index prices are reported in US dollars on a logarithmic scale.}
-    \label{fig:strike_15min_filtered}
-\end{figure}
-
-Figure~\ref{fig:strike_15min_filtered} displays the strike distribution of the filtered panel, with calls and puts shown separately and the 08:00 BTC index-price proxy overlaid in black. The filtered sample preserves a wide cross-section of strikes around the money while also retaining far out-of-the-money observations in both tails.
-
-All maturity-related tables below use accurate time to maturity, measured from the selected transaction timestamp to the contract expiration timestamp. Thus an option traded exactly at 08:00 UTC one day before expiration has $T=1$, while a trade at 20:00 UTC one day before expiration would have $T=0.5$. In the 15-minute filtered panel this correction is small but conceptually important because the retained transaction need not occur exactly at 08:00.
 
 \begin{table}[htbp]
 \centering
@@ -103,6 +86,28 @@ None & 24 h & 13,595.34 & 12,435.5 & 508.84 & 501.5 & 186,237 & 100\%\\
 \caption{\textbf{Comparison of daily closing-price windows.} For every UTC date in 2024, the table summarizes eligible regular outright BTC inverse-option transactions. The symmetric windows are centered on 08:00 UTC; the final row uses the entire UTC calendar day as an unfiltered benchmark. ``Daily instruments'' is the number of distinct contracts with at least one eligible trade, and ``Annual observations'' is the number of unique date--instrument pairs.}
 \label{tab:closing_window_comparison_15min}
 \end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{Sections/02_data_figures/Daily_traded_quantity_15min_filtered.png}
+    \caption{\textbf{Daily trading activity in the 15-minute closing window.} The upper panel reports the number of eligible BTC inverse-option trades, and the lower panel reports their total contract quantity within 07:45--08:15 UTC on each date in 2024.}
+    \label{fig:daily_quantity_15min_filtered}
+\end{figure}
+
+Figure~\ref{fig:daily_quantity_15min_filtered} shows trading activity inside the 15-minute closing window. The number of trades and total quantity vary substantially over time, with visible bursts around periods of elevated Bitcoin market activity. Since each retained date--contract observation is constructed from actual transactions near 08:00 UTC, the panel balances contemporaneous cross-sectional pricing with sufficient coverage for daily calibration.
+
+Figure~\ref{fig:strike_15min_filtered} displays the strike distribution of the filtered panel, with calls and puts shown separately and the 08:00 BTC index-price proxy overlaid in black. The filtered sample preserves a wide cross-section of strikes around the money while also retaining far out-of-the-money observations in both tails.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{Sections/02_data_figures/Strike_price_15min_filtered_inverse_options.png}
+    \caption{\textbf{Strike distribution in the 15-minute closing panel.} Calls and puts are shown separately; the black line is the contemporaneous BTC index-price proxy. Strike and index prices are reported in US dollars on a logarithmic scale.}
+    \label{fig:strike_15min_filtered}
+\end{figure}
+
+All maturity-related tables below use accurate time to maturity, measured from the selected transaction timestamp to the contract expiration timestamp. Thus an option traded exactly at 08:00 UTC one day before expiration has $T=1$, while a trade at 20:00 UTC one day before expiration would have $T=0.5$. In the 15-minute filtered panel this correction is small but conceptually important because the retained transaction need not occur exactly at 08:00.
+
+
 
 
 Tables~\ref{tab:filtered_option_characteristics} and~\ref{tab:filtered_weighted_option_characteristics} summarize the same three characteristics---time to maturity ($T$), moneyness ($S_0/K$), and BTC-denominated closing price ($p$)---using observation weights and transaction-quantity weights, respectively. Quantity weighting shifts the medians toward shorter maturities (calls: 7.00 to 5.99 days; puts: 4.99 to 3.00 days) and lower prices (calls: 0.0095 to 0.0080 BTC; puts: 0.0075 to 0.0055 BTC). Median moneyness changes little, although the upper tail of put moneyness becomes heavier; for example, its 99th percentile rises from 2.16 to 2.56. These differences show that trade size is not distributed uniformly across contracts and motivate reporting both weighting schemes rather than treating quantity weighting as a neutral rescaling.
@@ -144,8 +149,6 @@ Max & 364.01 & 364.00 & 9.50 & 8.75 & 0.8960 & 2.1050 \\
 
 \begin{table}[htbp]
 \centering
-\caption{\textbf{Quantity-weighted distributions of 15-minute filtered option characteristics.} Percentiles are weighted by total contract quantity in each 15-minute window.}
-\label{tab:filtered_weighted_option_characteristics}
 \begin{tabular}{lrrrrrr}
 \hline
  & \multicolumn{2}{c}{$T$} & \multicolumn{2}{c}{$S_0/K$} & \multicolumn{2}{c}{$p$} \\
@@ -170,13 +173,13 @@ $Q_{99.99}$ & 360.99 & 362.00 & 7.24 & 8.75 & 0.8645 & 0.6345 \\
 Max & 364.01 & 364.00 & 9.50 & 8.75 & 0.8960 & 2.1050 \\
 \hline
 \end{tabular}
+\caption{\textbf{Quantity-weighted distributions of 15-minute filtered option characteristics.} Percentiles are weighted by total contract quantity in each 15-minute window.}
+\label{tab:filtered_weighted_option_characteristics}
 \end{table}
 
 
 \begin{table}[htbp]
 \centering
-\caption{\textbf{Maturity--moneyness categories for 15-minute filtered options.} The table reports the proportion (\%) of date--contract observations in each category.}
-\label{tab:filtered_maturity_moneyness_categories}
 \begin{tabular}{lrrrr}
 \hline
 Inverse BTC call option & Deep OTM & OTM & ITM & \\
@@ -196,6 +199,8 @@ Long-term: $28 < T$ & 1.7\% & 2.4\% & 4.9\% & 9.0\% \\
 Sum & 8.3\% & 26.7\% & 12.3\% & 47.3\% \\
 \hline
 \end{tabular}
+\caption{\textbf{Maturity--moneyness categories for 15-minute filtered options.} The table reports the proportion (\%) of date--contract observations in each category.}
+\label{tab:filtered_maturity_moneyness_categories}
 \end{table}
 
 Tables~\ref{tab:filtered_maturity_moneyness_categories} and~\ref{tab:filtered_weighted_maturity_moneyness_categories} partition the 15-minute panel into the same maturity--moneyness grid, first by the share of date--contract observations and then by the share of traded quantity. Short-term contracts dominate both measures. Quantity weighting raises the call share from 52.7\% to 56.7\%, driven mainly by short-term OTM calls (21.5\% to 26.9\%), while the long-term shares decline for calls (11.9\% to 10.3\%) and puts (9.0\% to 6.3\%). Thus, within the closing window, larger trades are relatively concentrated in short-dated call contracts rather than the longer-dated contracts suggested by the full-day sample reported in Appendix~\ref{app:full_year_intraday_option_eda}.
@@ -203,8 +208,6 @@ Tables~\ref{tab:filtered_maturity_moneyness_categories} and~\ref{tab:filtered_we
 
 \begin{table}[htbp]
 \centering
-\caption{\textbf{Quantity-weighted maturity--moneyness categories for 15-minute filtered options.} The table reports the proportion (\%) of total 15-minute-window quantity in each category.}
-\label{tab:filtered_weighted_maturity_moneyness_categories}
 \begin{tabular}{lrrrr}
 \hline
 Inverse BTC call option & Deep OTM & OTM & ITM & \\
@@ -224,14 +227,14 @@ Long-term: $28 < T$ & 0.9\% & 1.5\% & 3.9\% & 6.3\% \\
 Sum & 5.6\% & 26.6\% & 11.1\% & 43.3\% \\
 \hline
 \end{tabular}
+\caption{\textbf{Quantity-weighted maturity--moneyness categories for 15-minute filtered options.} The table reports the proportion (\%) of total 15-minute-window quantity in each category.}
+\label{tab:filtered_weighted_maturity_moneyness_categories}
 \end{table}
 
 Tables~\ref{tab:filtered_average_prices_inverse_options} and~\ref{tab:filtered_weighted_average_prices_inverse_options} report mean BTC-denominated prices and standard deviations across the same grid. In both tables, average prices generally increase with maturity and intrinsic value, providing a basic internal-consistency check. Quantity weighting is nevertheless economically meaningful and bucket-specific: for example, the mean short-term ITM call price falls from 0.0449 to 0.0303 BTC, and the mean long-term ITM put price falls from 0.1696 to 0.1347 BTC. The weighted and unweighted summaries are therefore retained as complementary descriptions of the calibration sample.
 
 \begin{table}[htbp]
 \centering
-\caption{\textbf{Average prices for 15-minute filtered inverse options.} Cells report mean prices in BTC, with standard deviations in parentheses.}
-\label{tab:filtered_average_prices_inverse_options}
 \begin{tabular}{lccc}
 \hline
 Inverse BTC call option & Deep OTM & OTM & ITM \\
@@ -249,12 +252,12 @@ Mid-term: $7 < T \leq 28$ & \makecell{0.0694\\(0.0554)} & \makecell{0.0219\\(0.0
 Long-term: $28 < T$ & \makecell{0.1696\\(0.2020)} & \makecell{0.0617\\(0.0291)} & \makecell{0.0214\\(0.0225)} \\
 \hline
 \end{tabular}
+\caption{\textbf{Average prices for 15-minute filtered inverse options.} Cells report mean prices in BTC, with standard deviations in parentheses.}
+\label{tab:filtered_average_prices_inverse_options}
 \end{table}
 
 \begin{table}[htbp]
 \centering
-\caption{\textbf{Quantity-weighted average prices for 15-minute filtered inverse options.} Cells report quantity-weighted mean prices in BTC, with weighted standard deviations in parentheses.}
-\label{tab:filtered_weighted_average_prices_inverse_options}
 \begin{tabular}{lccc}
 \hline
 Inverse BTC call option & Deep OTM & OTM & ITM \\
@@ -272,6 +275,9 @@ Mid-term: $7 < T \leq 28$ & \makecell{0.0645\\(0.0333)} & \makecell{0.0217\\(0.0
 Long-term: $28 < T$ & \makecell{0.1347\\(0.1054)} & \makecell{0.0592\\(0.0304)} & \makecell{0.0172\\(0.0177)} \\
 \hline
 \end{tabular}
+\caption{\textbf{Quantity-weighted average prices for 15-minute filtered inverse options.} Cells report quantity-weighted mean prices in BTC, with weighted standard deviations in parentheses.}
+\label{tab:filtered_weighted_average_prices_inverse_options}
+
 \end{table}
 
 
