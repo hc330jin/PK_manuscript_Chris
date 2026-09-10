@@ -7,6 +7,7 @@
 % \bibliographystyle{plainnat}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 
+\usepackage{bm}
 \usepackage{xcolor}
 \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
 
@@ -338,10 +339,350 @@ Monotonicity confirms internal consistency. Within both tables, prices rise mono
 Weighting effects are asymmetric and bucket-specific, not uniform. Rather than a systematic upward or downward shift, quantity weighting moves prices in different directions depending on the cell. Short-term ITM calls are notably more expensive when weighted (0.0326 to 0.0415), whereas long-term ITM puts are substantially cheaper (0.1761 to 0.1366) and long-term ITM calls are slightly cheaper (0.1873 to 0.1787). A uniform ``volume-weighting effect'' therefore cannot be assumed across the calibration grid.
 
 Dispersion is high in several long-term buckets. Long-term ITM puts, for example, have an unweighted standard deviation of 0.2642 BTC, exceeding their mean of 0.1761 BTC. This heterogeneity cautions against interpreting a category average as a single contemporaneous option surface, which is one reason the main analysis uses the narrow closing window described in Section~\ref{subsec:deribit_filtered_options}.
+\clearpage
+\subsection*{What is Bayesian Inference?}
+Bayesian inference is a statistical framework for updating beliefs about
+unknown quantities in light of observed data. Unlike the frequentist
+approach, which treats parameters as fixed but unknown constants, Bayesian
+inference treats the parameter vector $\bm{\Theta}$ (in the SVCJ setting,
+the parameters $\kappa, \theta, \sigma_v, \rho, \lambda$, and the
+jump-related terms) as a random variable with its own probability
+distribution.
+ 
+The framework rests on Bayes' theorem:
+\begin{equation}
+    p(\bm{\Theta} \mid y) = \frac{p(y \mid \bm{\Theta})\,p(\bm{\Theta})}{p(y)}
+    \propto p(y \mid \bm{\Theta})\,p(\bm{\Theta})
+    \label{eq:bayes}
+\end{equation}
+where $y$ denotes the observed data (daily Bitcoin returns). Three objects
+matter here:
+ 
+\begin{itemize}
+    \item \textbf{Prior}, $p(\bm{\Theta})$ --- the belief about $\bm{\Theta}$
+    before observing any data, specified by the researcher.
+    \item \textbf{Likelihood}, $p(y \mid \bm{\Theta})$ --- the probability of
+    observing the data given a particular value of $\bm{\Theta}$, determined
+    by the SVCJ model's dynamics.
+    \item \textbf{Posterior}, $p(\bm{\Theta} \mid y)$ --- the updated belief
+    about $\bm{\Theta}$ after observing the data, and the actual object of
+    inference.
+\end{itemize}
+ 
+The normalizing constant $p(y)$ does not depend on $\bm{\Theta}$ and can be
+dropped in the proportionality in \eqref{eq:bayes}; this becomes important
+in Section~\ref{sec:mcmc}.
+ 
+In the SVCJ setting, Bayesian inference means estimating the entire
+posterior distribution of the parameters and the latent variance path
+$V_t$, rather than a single point estimate --- giving not just parameter
+values but a full characterization of estimation uncertainty (e.g.,
+credible intervals), which is valuable when addressing the pricing kernel
+puzzle.
+\clearpage
 
-
-
+\subsection*{What is MCMC (Markov Chain Monte Carlo)?}
+\label{sec:mcmc}
+Markov Chain Monte Carlo (MCMC) is the computational method used to obtain
+the posterior $p(\bm{\Theta}\mid y)$ when it has no closed-form solution ---
+which is the case for SVCJ, since the model's nonlinear, jump-diffusion
+likelihood does not belong to any conjugate family with the priors
+typically used.
+ 
+The obstacle is the normalizing constant:
+\begin{equation}
+    p(y) = \int p(y\mid\bm{\Theta})\,p(\bm{\Theta})\,d\bm{\Theta}
+    \label{eq:normconst}
+\end{equation}
+This is an 11-dimensional integral (matching the dimension of
+$\bm{\Theta}$) with no analytical solution, and it is computationally
+infeasible to evaluate numerically via grid methods due to the curse of
+dimensionality.
+ 
+MCMC sidesteps this problem by constructing a Markov chain --- a sequence
+$\bm{\Theta}^{(0)}, \bm{\Theta}^{(1)}, \bm{\Theta}^{(2)}, \dots$ --- whose
+long-run (stationary) distribution is exactly the posterior
+$p(\bm{\Theta}\mid y)$. The chain is built using only the \emph{ratio} of
+unnormalized posterior densities, most commonly via the Metropolis-Hastings
+acceptance probability:
+\begin{equation}
+    \alpha(\bm{\Theta},\bm{\Theta}^*) = \min\left(1,\
+    \frac{p(y\mid\bm{\Theta}^*)\,p(\bm{\Theta}^*)}
+    {p(y\mid\bm{\Theta})\,p(\bm{\Theta})}\right)
+    \label{eq:mh}
+\end{equation}
+Because $p(y)$ appears in both numerator and denominator, it cancels ---
+so the intractable integral in \eqref{eq:normconst} never needs to be
+computed. Each iteration still requires evaluating the likelihood and
+prior at the proposed and current parameter values, which is why the SVCJ
+likelihood computation (including the latent $V_t$ path) is the main
+computational bottleneck of the algorithm.
+ 
+After discarding an initial ``burn-in'' period and running enough
+iterations, the sampled draws $\{\bm{\Theta}^{(t)}\}$ behave as (correlated)
+samples from the true posterior. This lets us approximate:
+\begin{itemize}
+    \item \textbf{Posterior means} --- via the sample average,
+    $\frac{1}{T}\sum_{t=1}^{T} \bm{\Theta}^{(t)}$
+    \item \textbf{Credible intervals} --- via sample quantiles of the draws
+    \item \textbf{Marginal posteriors} of individual parameters (e.g.,
+    $\kappa$ alone) --- by simply looking at that parameter's column of
+    draws, without needing to analytically integrate out the others
+\end{itemize}
+ 
+In the SVCJ setup, this is typically implemented as
+\textbf{Metropolis-within-Gibbs}: parameters with tractable full
+conditional distributions are updated via direct Gibbs draws, while
+parameters without conjugate forms (and the latent $V_t$ path itself) are
+updated via Metropolis-Hastings steps within the same sweep.
 
 \clearpage
+
+\subsection*{Why MCMC Works: Stationarity, Detailed Balance, and a Discrete Example}
+\label{subsec:mcmc_theory}
+
+The preceding subsection describes what the Metropolis--Hastings recipe does.
+This subsection states why it is valid: why a chain constructed from
+unnormalized density ratios reproduces the correct posterior, and at what rate
+it does so. A three-state example makes every quantity explicit.
+
+\subsubsection*{Stationarity}
+
+Let $\pi$ denote the target distribution --- here the posterior
+$p(\bm{\Theta}\mid y)$ --- known only up to the normalizing constant
+\eqref{eq:normconst}, so that $\pi(x)\propto w(x)$ for a computable weight
+function $w$. A Markov chain on a state space $\mathcal{X}$ is characterized by
+its transition kernel
+\begin{equation}
+    P(x,y)=\Pr\left(X_{t+1}=y \mid X_t=x\right),
+    \qquad \sum_{y\in\mathcal{X}}P(x,y)=1,
+    \label{eq:kernel}
+\end{equation}
+and a distribution evolves according to $\mu_{t+1}=\mu_t P$. The distribution
+$\pi$ is \emph{stationary} for $P$ if
+\begin{equation}
+    \pi P=\pi,
+    \qquad\text{that is,}\qquad
+    \sum_{x\in\mathcal{X}}\pi(x)P(x,y)=\pi(y)
+    \quad\text{for all }y\in\mathcal{X}.
+    \label{eq:stationary}
+\end{equation}
+Once the marginal law of the chain equals $\pi$, it remains $\pi$ at every
+subsequent step. Condition \eqref{eq:stationary} is global---it couples every
+state to every other---and is therefore awkward to impose directly when
+designing an algorithm.
+
+\subsubsection*{Detailed balance}
+
+The practical route is to impose a stronger but purely \emph{pairwise}
+condition. The chain is \emph{reversible} with respect to $\pi$, equivalently
+satisfies \emph{detailed balance}, if
+\begin{equation}
+    \pi(x)P(x,y)=\pi(y)P(y,x)
+    \qquad\text{for all }x,y\in\mathcal{X}.
+    \label{eq:detailed_balance}
+\end{equation}
+Read as a statement about flows, \eqref{eq:detailed_balance} requires the
+probability mass moving from $x$ to $y$ in stationarity to equal the mass
+moving from $y$ to $x$.
+
+\begin{proposition}
+Detailed balance \eqref{eq:detailed_balance} implies stationarity
+\eqref{eq:stationary}.
+\label{prop:db_implies_stationarity}
+\end{proposition}
+
+\begin{proof}
+Summing \eqref{eq:detailed_balance} over $x$ and using $\sum_{x}P(y,x)=1$,
+\begin{equation*}
+    \sum_{x}\pi(x)P(x,y)
+    =\sum_{x}\pi(y)P(y,x)
+    =\pi(y)\sum_{x}P(y,x)
+    =\pi(y),
+\end{equation*}
+which is precisely \eqref{eq:stationary}.
+\end{proof}
+
+Proposition~\ref{prop:db_implies_stationarity} is the design principle behind
+every Metropolis--Hastings sampler: a condition that can be verified one pair of
+states at a time delivers the global fixed-point property that is actually
+required. The converse does not hold---a stationary chain need not be
+reversible---but reversible chains are far easier to construct.
+
+\subsubsection*{Convergence and the ergodic theorem}
+
+Stationarity alone does not guarantee that the chain \emph{reaches} $\pi$ from
+an arbitrary starting point. Two further conditions are needed. The chain is
+\emph{irreducible} if every state is reachable from every other in finitely many
+steps, and \emph{aperiodic} if it is not confined to a deterministic cycle.
+Under irreducibility and aperiodicity, for any initial distribution $\mu_0$,
+\begin{equation}
+    \left\|\mu_0P^{t}-\pi\right\|_{TV}\longrightarrow 0
+    \qquad\text{and}\qquad
+    \frac{1}{T}\sum_{t=1}^{T}f\left(X_t\right)
+    \xrightarrow{\text{ a.s. }}\mathbb{E}_{\pi}\left[f\right]
+    \label{eq:ergodic}
+\end{equation}
+for every $\pi$-integrable $f$. The second statement is the ergodic theorem. It
+is the law of large numbers for dependent draws, and it is what licenses
+estimating posterior means and quantiles by averaging along a single realized
+chain.
+
+\subsubsection*{Metropolis--Hastings satisfies detailed balance}
+
+\begin{proposition}
+Let $q(x,\cdot)$ be any proposal kernel and let
+\begin{equation}
+    \alpha(x,y)=\min\left\{1,\ \frac{w(y)\,q(y,x)}{w(x)\,q(x,y)}\right\}
+    \label{eq:mh_general}
+\end{equation}
+be the associated acceptance probability. Then the chain with off-diagonal
+kernel $P(x,y)=q(x,y)\alpha(x,y)$ for $y\neq x$, and with the residual mass
+placed on $P(x,x)$, satisfies detailed balance \eqref{eq:detailed_balance} with
+respect to $\pi\propto w$.
+\label{prop:mh_db}
+\end{proposition}
+
+\begin{proof}
+Fix $x\neq y$ and suppose without loss of generality that
+$w(y)q(y,x)\leq w(x)q(x,y)$, so that
+$\alpha(x,y)=w(y)q(y,x)/\left[w(x)q(x,y)\right]$ and $\alpha(y,x)=1$. Then
+\begin{equation*}
+    \pi(x)P(x,y)
+    \propto w(x)\,q(x,y)\,\frac{w(y)\,q(y,x)}{w(x)\,q(x,y)}
+    =w(y)\,q(y,x)
+    =w(y)\,q(y,x)\,\alpha(y,x)
+    \propto \pi(y)P(y,x).
+\end{equation*}
+The reverse inequality follows by symmetry, and the case $x=y$ is immediate.
+\end{proof}
+
+Only the ratio $w(y)/w(x)$ enters \eqref{eq:mh_general}. The normalizing
+constant \eqref{eq:normconst} cancels, which is the property already exploited
+in \eqref{eq:mh}. Combining Propositions~\ref{prop:db_implies_stationarity}
+and~\ref{prop:mh_db} with \eqref{eq:ergodic} completes the justification: the
+sampler targets $\pi$, and time averages along its path converge to posterior
+expectations.
+
+\subsubsection*{A three-state example}
+
+Let $\mathcal{X}=\{1,2,3\}$ and suppose only the unnormalized weights
+\begin{equation*}
+    w(1)=1,\qquad w(2)=2,\qquad w(3)=3
+\end{equation*}
+can be evaluated, the constant $w(1)+w(2)+w(3)=6$ being treated as unknown
+exactly as $p(y)$ is unknown in \eqref{eq:normconst}. The target is therefore
+$\pi=\left(\tfrac{1}{6},\tfrac{1}{3},\tfrac{1}{2}\right)$, which the algorithm
+must recover without ever using the number $6$.
+
+Take the symmetric proposal that moves to one of the two other states with equal
+probability, $q(x,y)=\tfrac{1}{2}$ for $y\neq x$. The proposal terms in
+\eqref{eq:mh_general} cancel, leaving $\alpha(x,y)=\min\{1,w(y)/w(x)\}$. From
+state $2$, for instance,
+\begin{equation*}
+    P(2,1)=\tfrac{1}{2}\min\left\{1,\tfrac{1}{2}\right\}=\tfrac{1}{4},
+    \qquad
+    P(2,3)=\tfrac{1}{2}\min\left\{1,\tfrac{3}{2}\right\}=\tfrac{1}{2},
+\end{equation*}
+with the remaining mass $P(2,2)=1-\tfrac{1}{4}-\tfrac{1}{2}=\tfrac{1}{4}$
+assigned to the rejection event, in which the chain stays where it is. Note that
+moves toward higher weight are always accepted, while moves toward lower weight
+are accepted in proportion to the weight ratio. Collecting all three rows,
+\begin{equation}
+    P=\begin{pmatrix}
+        0 & 1/2 & 1/2\\
+        1/4 & 1/4 & 1/2\\
+        1/6 & 1/3 & 1/2
+    \end{pmatrix}.
+    \label{eq:toy_kernel}
+\end{equation}
+
+Detailed balance \eqref{eq:detailed_balance} may be verified one pair at a time:
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$(x,y)$ & $\pi(x)P(x,y)$ & $\pi(y)P(y,x)$\\
+\midrule
+$(1,2)$ & $\tfrac{1}{6}\cdot\tfrac{1}{2}=\tfrac{1}{12}$
+        & $\tfrac{1}{3}\cdot\tfrac{1}{4}=\tfrac{1}{12}$\\
+$(1,3)$ & $\tfrac{1}{6}\cdot\tfrac{1}{2}=\tfrac{1}{12}$
+        & $\tfrac{1}{2}\cdot\tfrac{1}{6}=\tfrac{1}{12}$\\
+$(2,3)$ & $\tfrac{1}{3}\cdot\tfrac{1}{2}=\tfrac{1}{6}$
+        & $\tfrac{1}{2}\cdot\tfrac{1}{3}=\tfrac{1}{6}$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+By Proposition~\ref{prop:db_implies_stationarity}, $\pi$ is stationary for
+\eqref{eq:toy_kernel}. Starting the chain deterministically in state $1$, so
+that $\mu_0=(1,0,0)$, the marginal distribution evolves as follows.
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+$t$ & $\mu_t(1)$ & $\mu_t(2)$ & $\mu_t(3)$\\
+\midrule
+$0$ & $1.0000$ & $0.0000$ & $0.0000$\\
+$1$ & $0.0000$ & $0.5000$ & $0.5000$\\
+$2$ & $0.2083$ & $0.2917$ & $0.5000$\\
+$3$ & $0.1563$ & $0.3438$ & $0.5000$\\
+$4$ & $0.1693$ & $0.3307$ & $0.5000$\\
+\midrule
+$\pi$ & $0.1667$ & $0.3333$ & $0.5000$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The error in the first coordinate equals $\tfrac{1}{24}$, $-\tfrac{1}{96}$ and
+$\tfrac{1}{384}$ at $t=2,3,4$: it contracts by a factor of four and alternates
+in sign at each step. That factor is the second-largest eigenvalue of
+\eqref{eq:toy_kernel} in modulus, $\lambda_2=-1/4$. In general
+\begin{equation}
+    \left\|\mu_t-\pi\right\|_{TV}=O\left(\left|\lambda_2\right|^{t}\right),
+    \label{eq:spectral}
+\end{equation}
+so the \emph{spectral gap} $1-\left|\lambda_2\right|$ governs the rate of
+convergence; a chain that mixes slowly is one whose spectral gap is close to
+zero.
+
+The construction used only the ratios $w(2)/w(1)=2$, $w(3)/w(1)=3$ and
+$w(3)/w(2)=3/2$. The normalizing constant never appeared, yet the chain
+reproduces $\pi$ exactly. With three states one would of course normalize
+directly and sample without recourse to MCMC. The value of the argument is that
+nothing in it depends on the cardinality of $\mathcal{X}$: Propositions
+\ref{prop:db_implies_stationarity} and \ref{prop:mh_db} apply verbatim when the
+state is the parameter vector $\bm{\Theta}$ together with the latent variance
+path $\left\{V_t\right\}$, where \eqref{eq:normconst} is unavailable but the
+weight ratios remain elementary to compute.
+
+\subsubsection*{Practical consequences}
+
+Three implications for the estimation under $\mathbb{P}$ follow directly from
+\eqref{eq:ergodic} and \eqref{eq:spectral}.
+
+First, the convergence in \eqref{eq:ergodic} is asymptotic. Draws generated
+before the chain has approached $\pi$ still carry the influence of $\mu_0$ and
+are discarded as burn-in.
+
+Second, consecutive draws are dependent by construction. For an estimator
+$\bar{f}_T=T^{-1}\sum_{t=1}^{T}f\left(X_t\right)$ the relevant sample size is
+not $T$ but the effective sample size
+\begin{equation}
+    \mathrm{ESS}=\frac{T}{1+2\sum_{k=1}^{\infty}\rho_k},
+    \label{eq:ess}
+\end{equation}
+where $\rho_k$ denotes the lag-$k$ autocorrelation of
+$\left\{f\left(X_t\right)\right\}$. A slowly mixing chain can produce $T=10^{5}$
+draws whose information content is equivalent to only a few hundred independent
+ones.
+
+Third, the proposal scale is a genuine tuning parameter. Proposals that are too
+narrow are almost always accepted but explore the state space slowly, while
+proposals that are too wide are almost always rejected. Neither pathology
+violates \eqref{eq:ergodic}, but both inflate \eqref{eq:ess}. Convergence is
+therefore assessed empirically---through trace plots, autocorrelation functions,
+and the comparison of within- and between-chain variance across dispersed
+starting values---rather than being assumed.
 
 \end{document}

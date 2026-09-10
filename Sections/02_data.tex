@@ -67,7 +67,7 @@ Half-window & Full window & \multicolumn{2}{c}{Daily trades} & \multicolumn{2}{c
 $h$ & width & Mean & Median & Mean & Median & observations & percentage\\
 \midrule
 $\pm 1$ min & 2 min & 52.76 & 45 & 22.27 & 21 & 8,151 & 4.38\%\\
-\textcolor{red}{$\pm 2.5$ min} & \textcolor{red}{5 min} & \textcolor{red}{190.65} & \textcolor{red}{173.5} & \textcolor{red}{49.02} & \textcolor{red}{44} & \textcolor{red}{17,940} & \textcolor{red}{9.63\%}\\
+$\pm 2.5$ min & 5min & 190.65 & 173.5 & 49.02 & 44 & 17,940 & 9.63\%\\
 $\pm 5$ min & 10 min & 411.99 & 366 & 73.82 & 66 & 27,018 & 14.51\%\\
 $\pm 10$ min & 20 min & 607.66 & 557 & 105.27 & 96 & 38,528 & 20.69\%\\
 $\pm 15$ min & 30 min & 756.87 & 698 & 127.84 & 118 & 46,788 & 25.12\%\\
@@ -91,7 +91,7 @@ Figure~\ref{fig:daily_quantity_15min_filtered} shows trading activity inside the
 
 Figure~\ref{fig:strike_15min_filtered} displays the strike distribution of the filtered panel, with calls and puts shown separately and the 08:00 BTC index-price proxy overlaid in black. The filtered sample preserves a wide cross-section of strikes around the money while also retaining far out-of-the-money observations in both tails.
 
-\textcolor{red}{For the descriptive figures and tables in this subsection, the 08:00 BTC index-price proxy is used to summarize the strike distribution and moneyness. In the baseline calibration, however, $S_0$ is the contemporaneous Deribit index price recorded with each selected option transaction. Contracts retained on the same date can therefore have slightly different values of $S_0$ because their transaction timestamps need not coincide exactly.}
+For the descriptive figures and tables in this subsection, the 08:00 BTC index-price proxy is used to summarize the strike distribution and moneyness. In the baseline calibration, however, $S_0$ is the contemporaneous Deribit index price recorded with each selected option transaction. Contracts retained on the same date can therefore have slightly different values of $S_0$ because their transaction timestamps need not coincide exactly.
 
 \begin{figure}[htbp]
     \centering
@@ -100,14 +100,14 @@ Figure~\ref{fig:strike_15min_filtered} displays the strike distribution of the f
     \label{fig:strike_15min_filtered}
 \end{figure}
 
-\textcolor{red}{The descriptive maturity tables below report accurate time to maturity measured from the selected transaction timestamp to expiration. The baseline SVCJ calibration instead measures $T$ from the common 08:00 UTC valuation time to the 08:00 UTC expiration time and expresses it as an integer number of calendar days, consistent with the model's daily simulation step. Contracts expiring at the valuation time ($T=0$) are excluded. Hence, the transaction-time-adjusted maturity field is retained for sample description but is not used by the baseline calibration. A selected trade may occur up to 15 minutes before or after 08:00 UTC; this small discrepancy is treated as a measurement approximation around the common daily valuation time.}
+The descriptive maturity tables below report accurate time to maturity measured from the selected transaction timestamp to expiration. The baseline SVCJ calibration instead measures $T$ from the common 08:00 UTC valuation time to the 08:00 UTC expiration time and expresses it as an integer number of calendar days, consistent with the model's daily simulation step. Contracts expiring at the valuation time ($T=0$) are excluded. Hence, the transaction-time-adjusted maturity field is retained for sample description but is not used by the baseline calibration. A selected trade may occur up to 15 minutes before or after 08:00 UTC; this small discrepancy is treated as a measurement approximation around the common daily valuation time.
 
 
 
 
 Tables~\ref{tab:filtered_option_characteristics} and~\ref{tab:filtered_weighted_option_characteristics} summarize the same three characteristics---time to maturity ($T$), moneyness ($S_0/K$), and BTC-denominated closing price ($p$)---using observation weights and transaction-quantity weights, respectively. Quantity weighting shifts the medians toward shorter maturities (calls: 7.00 to 5.99 days; puts: 4.99 to 3.00 days) and lower prices (calls: 0.0095 to 0.0080 BTC; puts: 0.0075 to 0.0055 BTC). Median moneyness changes little, although the upper tail of put moneyness becomes heavier; for example, its 99th percentile rises from 2.16 to 2.56. These differences show that trade size is not distributed uniformly across contracts and motivate reporting both weighting schemes rather than treating quantity weighting as a neutral rescaling.
 
-\textcolor{red}{Transaction-quantity weighting is used only for these descriptive summaries. The baseline SVCJ calibration is not weighted by transaction quantity or by the number of trades in the window: after selecting one closest-to-08:00 transaction for each date--instrument pair, every retained option contract contributes one relative pricing residual to the least-squares objective.}
+Transaction-quantity weighting is used only for these descriptive summaries. The baseline SVCJ calibration is not weighted by transaction quantity or by the number of trades in the window: after selecting one closest-to-08:00 transaction for each date--instrument pair, every retained option contract contributes one relative pricing residual to the least-squares objective.
 
 
 
