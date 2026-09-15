@@ -340,7 +340,7 @@ Weighting effects are asymmetric and bucket-specific, not uniform. Rather than a
 
 Dispersion is high in several long-term buckets. Long-term ITM puts, for example, have an unweighted standard deviation of 0.2642 BTC, exceeding their mean of 0.1761 BTC. This heterogeneity cautions against interpreting a category average as a single contemporaneous option surface, which is one reason the main analysis uses the narrow closing window described in Section~\ref{subsec:deribit_filtered_options}.
 \clearpage
-\subsection*{What is Bayesian Inference?}
+    \subsection*{What is Bayesian Inference?}
 Bayesian inference is a statistical framework for updating beliefs about
 unknown quantities in light of observed data. Unlike the frequentist
 approach, which treats parameters as fixed but unknown constants, Bayesian
@@ -379,63 +379,6 @@ $V_t$, rather than a single point estimate --- giving not just parameter
 values but a full characterization of estimation uncertainty (e.g.,
 credible intervals), which is valuable when addressing the pricing kernel
 puzzle.
-\clearpage
-
-\subsection*{What is MCMC (Markov Chain Monte Carlo)?}
-\label{sec:mcmc}
-Markov Chain Monte Carlo (MCMC) is the computational method used to obtain
-the posterior $p(\bm{\Theta}\mid y)$ when it has no closed-form solution ---
-which is the case for SVCJ, since the model's nonlinear, jump-diffusion
-likelihood does not belong to any conjugate family with the priors
-typically used.
- 
-The obstacle is the normalizing constant:
-\begin{equation}
-    p(y) = \int p(y\mid\bm{\Theta})\,p(\bm{\Theta})\,d\bm{\Theta}
-    \label{eq:normconst}
-\end{equation}
-This is an 11-dimensional integral (matching the dimension of
-$\bm{\Theta}$) with no analytical solution, and it is computationally
-infeasible to evaluate numerically via grid methods due to the curse of
-dimensionality.
- 
-MCMC sidesteps this problem by constructing a Markov chain --- a sequence
-$\bm{\Theta}^{(0)}, \bm{\Theta}^{(1)}, \bm{\Theta}^{(2)}, \dots$ --- whose
-long-run (stationary) distribution is exactly the posterior
-$p(\bm{\Theta}\mid y)$. The chain is built using only the \emph{ratio} of
-unnormalized posterior densities, most commonly via the Metropolis-Hastings
-acceptance probability:
-\begin{equation}
-    \alpha(\bm{\Theta},\bm{\Theta}^*) = \min\left(1,\
-    \frac{p(y\mid\bm{\Theta}^*)\,p(\bm{\Theta}^*)}
-    {p(y\mid\bm{\Theta})\,p(\bm{\Theta})}\right)
-    \label{eq:mh}
-\end{equation}
-Because $p(y)$ appears in both numerator and denominator, it cancels ---
-so the intractable integral in \eqref{eq:normconst} never needs to be
-computed. Each iteration still requires evaluating the likelihood and
-prior at the proposed and current parameter values, which is why the SVCJ
-likelihood computation (including the latent $V_t$ path) is the main
-computational bottleneck of the algorithm.
- 
-After discarding an initial ``burn-in'' period and running enough
-iterations, the sampled draws $\{\bm{\Theta}^{(t)}\}$ behave as (correlated)
-samples from the true posterior. This lets us approximate:
-\begin{itemize}
-    \item \textbf{Posterior means} --- via the sample average,
-    $\frac{1}{T}\sum_{t=1}^{T} \bm{\Theta}^{(t)}$
-    \item \textbf{Credible intervals} --- via sample quantiles of the draws
-    \item \textbf{Marginal posteriors} of individual parameters (e.g.,
-    $\kappa$ alone) --- by simply looking at that parameter's column of
-    draws, without needing to analytically integrate out the others
-\end{itemize}
- 
-In the SVCJ setup, this is typically implemented as
-\textbf{Metropolis-within-Gibbs}: parameters with tractable full
-conditional distributions are updated via direct Gibbs draws, while
-parameters without conjugate forms (and the latent $V_t$ path itself) are
-updated via Metropolis-Hastings steps within the same sweep.
-
 \clearpage
 
 \subsection*{Why MCMC Works: Stationarity, Detailed Balance, and a Discrete Example}
@@ -684,5 +627,7 @@ violates \eqref{eq:ergodic}, but both inflate \eqref{eq:ess}. Convergence is
 therefore assessed empirically---through trace plots, autocorrelation functions,
 and the comparison of within- and between-chain variance across dispersed
 starting values---rather than being assumed.
+
+
 
 \end{document}
