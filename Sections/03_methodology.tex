@@ -9,7 +9,7 @@ The daily Euler transition is
 \begin{align}
 r_t &= \mu^P+\sqrt{V_{t-1}}\epsilon^y_t+J_t Z^y_t,
 \label{eq:p_svcj_return}\\
-V_t &= V_{t-1}+\alpha^P+\beta^P V_{t-1}
+V_t &= \alpha^P+\beta^P V_{t-1}
       +\sigma_v^P\sqrt{V_{t-1}}\epsilon^v_t+J_t Z^v_t,
 \label{eq:p_svcj_variance}
 \end{align}
@@ -21,9 +21,10 @@ Z^y_t\mid Z^v_t
 \sim\mathcal{N}\!\left(\mu_y^P+\rho_j^P Z^v_t,
                         (\sigma_y^P)^2\right).
 \end{equation}
-The exponential distribution is parameterized by its mean. The restriction
-$\alpha^P>0$ and $-1<\beta^P<0$ makes $-\alpha^P/\beta^P$ the stationary
-variance level of the Euler variance process in the absence of jumps.
+The exponential distribution is parameterized by its mean. The restrictions
+$\alpha^P>0$ and $0<\beta^P<1$ imply the no-jump long-run variance
+$\theta^P=\alpha^P/(1-\beta^P)$ and mean-reversion rate
+$\kappa^P=1-\beta^P$.
 
 We use Bayesian data augmentation to update the structural parameters jointly
 with the latent variance path, jump indicators, and jump sizes. The first half
@@ -35,44 +36,139 @@ states updated within the sampler rather than externally imposed observations.
 \subsubsection{Simulation design for P-parameter recovery}
 \label{subsubsec:p_parameter_recovery}
 
-We first simulate one SVCJ return path of 10,000 observations and then estimate
-the model from its nested prefixes,
-\begin{equation}
-\mathcal{Y}_{100}\subset\mathcal{Y}_{1000}
-\subset\mathcal{Y}_{10000}.
-\end{equation}
-Holding the data-generating parameters, random-number seed, priors, and MCMC
-transition kernel fixed isolates the effect of sample size. The recovery study
-reports the true value, posterior mean, and absolute percentage error of every
-parameter. It also reports QQ diagnostics for the standardized return
-innovations.
+Before estimating the model from observed returns, we evaluate whether the
+MCMC implementation can recover known physical-measure parameters and whether
+recovery improves with sample length.  The data-generating vector follows the
+reference implementation,
+\begin{align}
+\boldsymbol{\theta}^{P}_0
+&=(\mu,\alpha,\beta,\sigma_v,\rho,\lambda,
+   \mu_y,\sigma_y,\rho_j,\mu_v,V_0)' \\
+&=(0.002,3.5\times10^{-5},0.95,0.005,-0.2,0.05,
+   -0.01,0.11,-0.5,0.0006,0.0007)'.
+\label{eq:p_simulation_true_parameters}
+\end{align}
+These values imply $\kappa=0.05$ and $\theta=0.0007$.  Estimation is carried
+out in $(\alpha,\beta)$ because this is the sampler's natural parameterization;
+the economically interpretable $(\kappa,\theta)$ are calculated from every
+retained draw and reported alongside the directly sampled parameters.
 
-This is a deliberately demanding experiment for the jump block. With daily
-jump probability $\lambda^P=0.02$, samples of 100, 1,000, and 10,000 contain
-only about 2, 20, and 200 jumps in expectation. Thus, at $n=100$ the jump-size
-parameters can remain weakly identified even when the diffusion parameters are
-reasonably recovered. The nested design makes this finite-sample limitation
-visible without confounding it with a different simulated history.
+We generate 20 independent master paths of 365 daily returns.  Within each
+replication, estimation uses the nested prefixes
+\begin{equation}
+\mathcal{Y}_{30}\subset\mathcal{Y}_{90}
+\subset\mathcal{Y}_{180}\subset\mathcal{Y}_{360},
+\end{equation}
+so changes across $n$ are not confounded by different simulated histories.
+For every replication--sample-size pair, four chains start from deliberately
+dispersed parameter vectors.  Each chain contains 100,000 MCMC sweeps, of
+which the first 50,000 are discarded.  The sampler uses ancillary--sufficiency
+interweaving between centered and noncentered variance representations and an
+adaptive Fisher-transformed proposal for $\rho$ during burn-in.  Posterior
+means and 90\% equal-tail credible intervals are computed from the pooled
+retained draws of the four chains.
+
+For parameter $j$ and replication $b$, absolute percentage error is
+\begin{equation}
+\operatorname{APE}_{jb}(n)
+=100\left|\frac{\widehat\theta_{jb}(n)-\theta_{0,j}}
+{\theta_{0,j}}\right|.
+\label{eq:p_parameter_ape}
+\end{equation}
+The reported mean APE averages this quantity across the 20 replications.
+We additionally calculate across-replication bias, RMSE, and empirical coverage
+of the 90\% credible interval.  Mixing is evaluated separately for each
+replication--sample-size pair using rank-normalized split $\widehat R$, bulk
+effective sample size (ESS), and tail ESS.  A group passes only if every
+reported parameter and the stored conditional log-likelihood statistic satisfy
+$\widehat R\leq1.01$, bulk ESS $\geq400$, tail ESS $\geq400$, and contain no
+nonfinite draws.  Estimates from failed groups remain in the table rather than
+being selectively discarded.
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+& & \multicolumn{2}{c}{$n=30$} & \multicolumn{2}{c}{$n=90$}
+& \multicolumn{2}{c}{$n=180$} & \multicolumn{2}{c}{$n=360$}\\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(lr){9-10}
+Parameter & True value & Estimate & APE (\%) & Estimate & APE (\%)
+& Estimate & APE (\%) & Estimate & APE (\%)\\
+\midrule
+$V_0$      & 0.000700 & 0.001716 & 145.2 & 0.001745 & 149.2 & 0.001733 & 147.6 & 0.001594 & 127.8\\
+$\mu$      & 0.002000 & 0.001409 & 184.8 & 0.002376 & 140.0 & 0.001358 & 87.3 & 0.001865 & 64.4\\
+$\mu_y$    & $-0.010000$ & $-0.030602$ & 443.0 & $-0.006171$ & 480.1 & 0.001230 & 577.9 & 0.010539 & 514.4\\
+$\sigma_y$ & 0.110000 & 0.115416 & 7.7 & 0.102549 & 12.9 & 0.095541 & 21.0 & 0.100355 & 21.7\\
+$\lambda$  & 0.050000 & 0.050223 & 20.3 & 0.049696 & 32.4 & 0.052934 & 33.8 & 0.047834 & 33.2\\
+$\alpha$   & 0.000035 & 0.001018 & 2809.5 & 0.000697 & 1891.9 & 0.000557 & 1491.9 & 0.000231 & 560.5\\
+$\beta$    & 0.950000 & 0.140858 & 85.2 & 0.294739 & 69.0 & 0.492150 & 48.2 & 0.774528 & 18.5\\
+$\rho$     & $-0.200000$ & 0.022395 & 140.6 & 0.014006 & 133.5 & $-0.135420$ & 116.7 & $-0.175243$ & 88.0\\
+$\sigma_v$ & 0.005000 & 0.010086 & 101.7 & 0.008700 & 74.0 & 0.008536 & 70.7 & 0.007985 & 59.7\\
+$\rho_j$   & $-0.500000$ & $-0.129865$ & 98.5 & $-0.230553$ & 116.2 & $-0.253463$ & 174.7 & 0.120796 & 208.3\\
+$\mu_v$    & 0.000600 & 0.008831 & 1371.8 & 0.005503 & 817.2 & 0.002990 & 398.4 & 0.002004 & 233.9\\
+$\kappa$   & 0.050000 & 0.859142 & 1618.3 & 0.705261 & 1310.5 & 0.507850 & 915.7 & 0.225472 & 350.9\\
+$\theta$   & 0.000700 & 0.001167 & 75.3 & 0.000960 & 46.4 & 0.001000 & 45.6 & 0.001026 & 47.8\\
+\midrule
+Convergence pass & & \multicolumn{2}{c}{13/20} & \multicolumn{2}{c}{0/20}
+& \multicolumn{2}{c}{0/20} & \multicolumn{2}{c}{1/20}\\
+\bottomrule
+\end{tabular}%
+}
+\caption{\textbf{Simulation-based recovery of physical-measure SVCJ parameters.}
+The table reports posterior means and mean absolute percentage errors across
+20 independent replications.  Each replication uses nested return samples and
+four chains with 50,000 retained draws per chain.  The final row reports the
+number of replication--sample-size groups satisfying all $\widehat R$ and ESS
+criteria.  APE is computed within each replication before averaging and is
+therefore not generally equal to the percentage error of the reported mean.}
+\label{tab:p_parameter_recovery_simulation}
+\end{table}
+
+Table~\ref{tab:p_parameter_recovery_simulation} shows that longer return
+histories improve some parameters but do not establish successful joint
+recovery.  Mean APE for $\kappa$ declines monotonically from 1,618.3\% at
+$n=30$ to 350.9\% at $n=360$, while the directly estimated $\beta$ improves
+from 85.2\% to 18.5\%.  Nevertheless, the mean estimate
+$\widehat\kappa=0.2255$ at $n=360$ remains more than four times its true value.
+The APE of $\theta$ falls from 75.3\% to 46.4\% between $n=30$ and $n=90$ but
+does not improve thereafter.  The variance-jump mean $\mu_v$, return-jump mean
+$\mu_y$, and co-jump loading $\rho_j$ also remain weakly recovered.
+
+Convergence evidence is more restrictive than the APE pattern.  Thirteen of
+20 groups pass all diagnostics at $n=30$, whereas none passes at $n=90$ or
+$n=180$ and only one passes at $n=360$.  The higher pass rate for the shortest
+sample should not be interpreted as superior identification: its posterior is
+broad, so chains can overlap even while estimates remain inaccurate.  These
+results indicate that ASIS and adaptive proposals alone do not resolve the
+strong posterior dependence and weak finite-sample identification of the full
+SVCJ parameter vector.  Accordingly, the exercise is evidence on the current
+estimator's limitations rather than validation of rolling estimates.
 
 \subsubsection{Estimation-window selection and QQ diagnostics}
 \label{subsubsec:p_window_selection}
 
 The estimation window must balance local adaptation against identification.
-A 40-return window is too short for the joint SVCJ specification: it contains
-eleven structural parameters and latent states but fewer than one jump in
-expectation when $\lambda^P=0.02$. This concern is consistent with the much
-longer daily samples used in the literature. \citet{ErakerJohannesPolson2003}
+A short return window is insufficient for the joint SVCJ specification: it
+contains eleven structural parameters and latent states, while the jump block
+is informed by relatively few events.  The recovery experiment above shows
+that even 360 observations do not reliably identify the full parameter vector.
+This concern is consistent with the much longer daily samples used in the
+literature. \citet{ErakerJohannesPolson2003}
 estimate stochastic-volatility jump models from long S\&P~500 and Nasdaq
 histories, and \citet{ChaimLaurini2018} use 1,840 daily Bitcoin observations.
 
 We therefore adopt 1,000 returns as the baseline rolling window. For a market
 that trades seven days per week, this corresponds to approximately 2.7 years
-and contains about 20 jumps at $\lambda^P=0.02$. It is a pragmatic minimum:
-the $n\in\{100,1{,}000,10{,}000\}$ recovery experiment quantifies the remaining
-finite-sample uncertainty, while an expanding window and a 2,000-return window
-serve as robustness specifications. For target date $t$, the baseline window
-contains only returns dated strictly before $t$, which prevents look-ahead
-bias.
+and contains about 50 jump days in expectation at the simulation value
+$\lambda^P=0.05$.  This choice is a conservative response to the poor recovery
+observed at $n\leq360$, not a claim that the present simulation has validated a
+1,000-return window.  An expanding window and a 2,000-return window therefore
+serve as robustness specifications, and all empirical estimates must be
+accompanied by chain-level convergence diagnostics. For target date $t$, the
+baseline window contains only returns dated strictly before $t$, which
+prevents look-ahead bias.
 
 Model adequacy is assessed with a QQ plot of the standardized diffusion
 innovation after removing the posterior expected jump contribution,
