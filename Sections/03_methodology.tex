@@ -62,11 +62,18 @@ replication, estimation uses the nested prefixes
 so changes across $n$ are not confounded by different simulated histories.
 For every replication--sample-size pair, four chains start from deliberately
 dispersed parameter vectors.  Each chain contains 100,000 MCMC sweeps, of
-which the first 50,000 are discarded.  The sampler uses ancillary--sufficiency
-interweaving between centered and noncentered variance representations and an
-adaptive Fisher-transformed proposal for $\rho$ during burn-in.  Posterior
-means and 90\% equal-tail credible intervals are computed from the pooled
-retained draws of the four chains.
+which the first 50,000 are discarded.  The formal sampler combines
+ancillary--sufficiency interweaving between centered and noncentered variance
+representations with three kernel changes selected in preliminary experiments.
+The B2 move jointly proposes $(\log\kappa,\log\theta,\log\sigma_v)$ and adapts
+its proposal covariance during burn-in.  The C update conditions the
+jump-distribution parameters only on dates currently classified as jumps.  The
+E update analytically integrates out jump sizes when drawing each jump
+indicator and then refreshes the corresponding variance and return jump sizes
+conditionally within the same block.  An adaptive Fisher-transformed proposal
+for $\rho$ is also used during burn-in, and no sign restriction is imposed on
+$\rho_j$.  Posterior means and 90\% equal-tail credible intervals are computed
+from the pooled retained draws of the four chains.
 
 For parameter $j$ and replication $b$, absolute percentage error is
 \begin{equation}
@@ -97,22 +104,22 @@ being selectively discarded.
 Parameter & True value & Estimate & APE (\%) & Estimate & APE (\%)
 & Estimate & APE (\%) & Estimate & APE (\%)\\
 \midrule
-$V_0$      & 0.000700 & 0.001716 & 145.2 & 0.001745 & 149.2 & 0.001733 & 147.6 & 0.001594 & 127.8\\
-$\mu$      & 0.002000 & 0.001409 & 184.8 & 0.002376 & 140.0 & 0.001358 & 87.3 & 0.001865 & 64.4\\
-$\mu_y$    & $-0.010000$ & $-0.030602$ & 443.0 & $-0.006171$ & 480.1 & 0.001230 & 577.9 & 0.010539 & 514.4\\
-$\sigma_y$ & 0.110000 & 0.115416 & 7.7 & 0.102549 & 12.9 & 0.095541 & 21.0 & 0.100355 & 21.7\\
-$\lambda$  & 0.050000 & 0.050223 & 20.3 & 0.049696 & 32.4 & 0.052934 & 33.8 & 0.047834 & 33.2\\
-$\alpha$   & 0.000035 & 0.001018 & 2809.5 & 0.000697 & 1891.9 & 0.000557 & 1491.9 & 0.000231 & 560.5\\
-$\beta$    & 0.950000 & 0.140858 & 85.2 & 0.294739 & 69.0 & 0.492150 & 48.2 & 0.774528 & 18.5\\
-$\rho$     & $-0.200000$ & 0.022395 & 140.6 & 0.014006 & 133.5 & $-0.135420$ & 116.7 & $-0.175243$ & 88.0\\
-$\sigma_v$ & 0.005000 & 0.010086 & 101.7 & 0.008700 & 74.0 & 0.008536 & 70.7 & 0.007985 & 59.7\\
-$\rho_j$   & $-0.500000$ & $-0.129865$ & 98.5 & $-0.230553$ & 116.2 & $-0.253463$ & 174.7 & 0.120796 & 208.3\\
-$\mu_v$    & 0.000600 & 0.008831 & 1371.8 & 0.005503 & 817.2 & 0.002990 & 398.4 & 0.002004 & 233.9\\
-$\kappa$   & 0.050000 & 0.859142 & 1618.3 & 0.705261 & 1310.5 & 0.507850 & 915.7 & 0.225472 & 350.9\\
-$\theta$   & 0.000700 & 0.001167 & 75.3 & 0.000960 & 46.4 & 0.001000 & 45.6 & 0.001026 & 47.8\\
+$V_0$      & 0.000700 & 0.001712 & 144.6 & 0.001749 & 149.9 & 0.001746 & 149.4 & 0.001607 & 129.5\\
+$\mu$      & 0.002000 & 0.001437 & 184.6 & 0.002396 & 138.8 & 0.001371 & 86.3 & 0.001875 & 65.4\\
+$\mu_y$    & $-0.010000$ & $-0.032158$ & 436.2 & $-0.007149$ & 488.4 & 0.000012 & 566.4 & 0.010083 & 510.0\\
+$\sigma_y$ & 0.110000 & 0.115896 & 8.9 & 0.102098 & 13.2 & 0.096188 & 21.3 & 0.100129 & 22.2\\
+$\lambda$  & 0.050000 & 0.050301 & 20.9 & 0.049162 & 33.0 & 0.052440 & 33.8 & 0.048248 & 33.2\\
+$\alpha$   & 0.000035 & 0.001014 & 2798.1 & 0.000693 & 1881.3 & 0.000553 & 1481.3 & 0.000229 & 554.9\\
+$\beta$    & 0.950000 & 0.140248 & 85.2 & 0.299939 & 68.4 & 0.496210 & 47.8 & 0.774996 & 18.4\\
+$\rho$     & $-0.200000$ & 0.017440 & 137.6 & 0.012082 & 133.3 & $-0.128452$ & 120.9 & $-0.169427$ & 84.9\\
+$\sigma_v$ & 0.005000 & 0.010082 & 101.6 & 0.008705 & 74.1 & 0.008556 & 71.1 & 0.008011 & 60.2\\
+$\rho_j$   & $-0.500000$ & $-0.198211$ & 90.8 & $-0.222931$ & 143.6 & $-0.062538$ & 186.4 & 0.050259 & 213.6\\
+$\mu_v$    & 0.000600 & 0.014314 & 2285.6 & 0.007303 & 1117.2 & 0.003146 & 424.3 & 0.002059 & 243.1\\
+$\kappa$   & 0.050000 & 0.859752 & 1619.5 & 0.700061 & 1300.1 & 0.503790 & 907.6 & 0.225004 & 350.0\\
+$\theta$   & 0.000700 & 0.001195 & 79.6 & 0.000939 & 43.4 & 0.001003 & 44.3 & 0.001032 & 48.7\\
 \midrule
-Convergence pass & & \multicolumn{2}{c}{13/20} & \multicolumn{2}{c}{0/20}
-& \multicolumn{2}{c}{0/20} & \multicolumn{2}{c}{1/20}\\
+Convergence pass & & \multicolumn{2}{c}{13/20} & \multicolumn{2}{c}{5/20}
+& \multicolumn{2}{c}{1/20} & \multicolumn{2}{c}{1/20}\\
 \bottomrule
 \end{tabular}%
 }
@@ -128,23 +135,24 @@ therefore not generally equal to the percentage error of the reported mean.}
 
 Table~\ref{tab:p_parameter_recovery_simulation} shows that longer return
 histories improve some parameters but do not establish successful joint
-recovery.  Mean APE for $\kappa$ declines monotonically from 1,618.3\% at
-$n=30$ to 350.9\% at $n=360$, while the directly estimated $\beta$ improves
-from 85.2\% to 18.5\%.  Nevertheless, the mean estimate
-$\widehat\kappa=0.2255$ at $n=360$ remains more than four times its true value.
-The APE of $\theta$ falls from 75.3\% to 46.4\% between $n=30$ and $n=90$ but
+recovery.  Mean APE for $\kappa$ declines monotonically from 1,619.5\% at
+$n=30$ to 350.0\% at $n=360$, while the directly estimated $\beta$ improves
+from 85.2\% to 18.4\%.  Nevertheless, the mean estimate
+$\widehat\kappa=0.2250$ at $n=360$ remains more than four times its true value.
+The APE of $\theta$ falls from 79.6\% to 43.4\% between $n=30$ and $n=90$ but
 does not improve thereafter.  The variance-jump mean $\mu_v$, return-jump mean
 $\mu_y$, and co-jump loading $\rho_j$ also remain weakly recovered.
 
 Convergence evidence is more restrictive than the APE pattern.  Thirteen of
-20 groups pass all diagnostics at $n=30$, whereas none passes at $n=90$ or
-$n=180$ and only one passes at $n=360$.  The higher pass rate for the shortest
+20 groups pass all diagnostics at $n=30$, compared with five at $n=90$ and
+only one each at $n=180$ and $n=360$.  The higher pass rate for the shortest
 sample should not be interpreted as superior identification: its posterior is
 broad, so chains can overlap even while estimates remain inaccurate.  These
-results indicate that ASIS and adaptive proposals alone do not resolve the
-strong posterior dependence and weak finite-sample identification of the full
-SVCJ parameter vector.  Accordingly, the exercise is evidence on the current
-estimator's limitations rather than validation of rolling estimates.
+results indicate that the B2+C+E kernel provides a limited mixing improvement,
+most visibly at $n=90$, but does not resolve the strong posterior dependence
+and weak finite-sample identification of the full SVCJ parameter vector.
+Accordingly, the exercise documents the current estimator's limitations rather
+than validating short-window rolling estimates.
 
 \subsubsection{Estimation-window selection and QQ diagnostics}
 \label{subsubsec:p_window_selection}
