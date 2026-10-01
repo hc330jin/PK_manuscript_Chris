@@ -340,7 +340,62 @@ Weighting effects are asymmetric and bucket-specific, not uniform. Rather than a
 
 Dispersion is high in several long-term buckets. Long-term ITM puts, for example, have an unweighted standard deviation of 0.2642 BTC, exceeding their mean of 0.1761 BTC. This heterogeneity cautions against interpreting a category average as a single contemporaneous option surface, which is one reason the main analysis uses the narrow closing window described in Section~\ref{subsec:deribit_filtered_options}.
 \clearpage
-    \subsection*{What is Bayesian Inference?}
+    \subsection*{What is Bayesian Inference? My Personal Interpretation}
+
+Bayesian inference is a statistical framework based on Bayes’ theorem:
+\[
+p(x\mid y)
+=
+\frac{p(x,y)}{p(y)}
+=
+\frac{p(y\mid x)p(x)}{p(y)}.
+\]In the current case—parameter estimation under the physical measure \(\mathbb{P}\)—we want to use only Bitcoin returns to estimate the parameters of the SVCJ model under \(\mathbb{P}\). Denote the returns by
+\[
+\{y_t\}_{t=1}^{T}=(y_1,y_2,\ldots,y_T),
+\]the set of parameters by
+\[
+\Theta
+=
+\{\mu,\mu_y,\sigma_y,\lambda,\alpha,\beta,
+\sigma_v,\rho,\rho_j,\mu_v\},
+\]and the latent variables by
+\[
+L_t=\{V_t,Z_t^v,Z_t^y,J_t\},
+\qquad t=1,\ldots,T.
+\]Let \(L_{1:T}=\{L_t\}_{t=1}^{T}\) denote the complete collection of latent variables. Then, by Bayes’ theorem,
+\[
+p(\Theta,L_{1:T}\mid y_{1:T})
+=
+\frac{
+p(y_{1:T}\mid\Theta,L_{1:T})
+p(L_{1:T}\mid\Theta)
+p(\Theta)
+}{
+p(y_{1:T})
+}.
+\]Because \(p(y_{1:T})\) does not depend on \(\Theta\) or \(L_{1:T}\), this can also be written as
+\[
+p(\Theta,L_{1:T}\mid y_{1:T})
+\propto
+p(y_{1:T}\mid\Theta,L_{1:T})
+p(L_{1:T}\mid\Theta)
+p(\Theta),
+\]which has the structure
+\[
+\text{posterior}
+\propto
+\text{likelihood}\times\text{prior}.
+\]
+more specifically, we have the structure
+\[\text{joint posterior}
+\propto
+\text{observation likelihood}
+\times
+\text{latent-state distribution}
+\times
+\text{parameter prior}.\]
+Note that: Bayesian inference therefore does not produce only one estimated value for each parameter. Instead, it produces a posterior distribution that describes the possible values of each parameter after the observed Bitcoin returns have been taken into account. In this experiment, posterior means are used as parameter estimates, while posterior quantiles can be used to construct credible intervals and describe estimation uncertainty.
+\begin{comment}
 Bayesian inference is a statistical framework for updating beliefs about
 unknown quantities in light of observed data. Unlike the frequentist
 approach, which treats parameters as fixed but unknown constants, Bayesian
@@ -379,6 +434,7 @@ $V_t$, rather than a single point estimate --- giving not just parameter
 values but a full characterization of estimation uncertainty (e.g.,
 credible intervals), which is valuable when addressing the pricing kernel
 puzzle.
+\end{comment}
 \clearpage
 
 \subsection*{Why MCMC Works: Stationarity, Detailed Balance, and a Discrete Example}
@@ -627,6 +683,9 @@ violates \eqref{eq:ergodic}, but both inflate \eqref{eq:ess}. Convergence is
 therefore assessed empirically---through trace plots, autocorrelation functions,
 and the comparison of within- and between-chain variance across dispersed
 starting values---rather than being assumed.
+
+
+
 
 
 
