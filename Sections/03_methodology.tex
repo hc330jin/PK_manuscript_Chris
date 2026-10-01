@@ -54,11 +54,12 @@ the economically interpretable $(\kappa,\theta)$ are calculated from every
 retained draw and reported alongside the directly sampled parameters.
 
 {\color{red}
-We generate 20 independent master paths of 1,000 daily returns. Within each
+We generate 20 independent master paths of 100,000 daily returns. Within each
 replication, estimation uses the nested prefixes
 \begin{equation}
 \mathcal{Y}_{10}\subset\mathcal{Y}_{100}
-\subset\mathcal{Y}_{1000},
+\subset\mathcal{Y}_{1000}\subset\mathcal{Y}_{10{,}000}
+\subset\mathcal{Y}_{100{,}000},
 \end{equation}
 so changes across $n$ are not confounded by different simulated histories.
 For every replication--sample-size pair, four chains start from deliberately
@@ -107,36 +108,37 @@ being selectively discarded.
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lrrrrrrr}
 \toprule
-& & \multicolumn{2}{c}{$n=10$} & \multicolumn{2}{c}{$n=100$}
-& \multicolumn{2}{c}{$n=1000$}\\
+& & \multicolumn{2}{c}{$n=1{,}000$} & \multicolumn{2}{c}{$n=10{,}000$}
+& \multicolumn{2}{c}{$n=100{,}000$}\\
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
 Parameter & True value & Estimate & APE (\%) & Estimate & APE (\%)
 & Estimate & APE (\%)\\
 \midrule
-$V_0$      & 0.000700 & 0.001622 & 131.7 & 0.001643 & 135.7 & 0.001507 & 120.7\\
-$\mu$      & 0.002000 & $-0.001046$ & 514.6 & 0.001217 & 161.2 & 0.002039 & 53.0\\
-$\mu_y$    & $-0.010000$ & 0.002843 & 141.8 & $-0.000228$ & 487.5 & $-0.007910$ & 188.0\\
-$\sigma_y$ & 0.110000 & 0.121619 & 10.6 & 0.113399 & 26.4 & 0.114069 & 11.5\\
-$\lambda$  & 0.050000 & 0.052060 & 5.3 & 0.051021 & 23.7 & 0.047360 & 22.9\\
-$\alpha$   & 0.000035 & 0.002400 & 6756.3 & 0.000745 & 2029.0 & 0.000088 & 151.3\\
-$\beta$    & 0.950000 & 0.102179 & 89.2 & 0.413204 & 56.5 & 0.903798 & 4.9\\
-$\rho$     & $-0.200000$ & 0.005299 & 102.6 & $-0.068656$ & 143.8 & $-0.186832$ & 50.6\\
-$\sigma_v$ & 0.005000 & 0.012583 & 151.7 & 0.009269 & 85.4 & 0.006624 & 32.5\\
-$\rho_j$   & $-0.500000$ & 0.020168 & 104.0 & 0.025791 & 188.3 & $-0.106264$ & 358.9\\
-$\mu_v$    & 0.000600 & 0.022903 & 3717.1 & 0.004963 & 727.2 & 0.001120 & 86.6\\
-$\kappa$   & 0.050000 & 0.897821 & 1695.6 & 0.586796 & 1073.6 & 0.096202 & 94.0\\
-$\theta$   & 0.000700 & 0.006219 & 788.4 & 0.001190 & 77.6 & 0.000920 & 35.7\\
+$V_0$      & 0.000700 & 0.001499 & 117.6 & 0.001373 & 102.0 & 0.001369 & 102.3\\
+$\mu$      & 0.002000 & 0.002232 & 40.2 & 0.001898 & 11.8 & 0.002004 & 3.9\\
+$\mu_y$    & $-0.010000$ & $-0.020461$ & 232.2 & $-0.009710$ & 56.6 & $-0.009974$ & 25.8\\
+$\sigma_y$ & 0.110000 & 0.107114 & 12.8 & 0.109923 & 3.5 & 0.109620 & 1.5\\
+$\lambda$  & 0.050000 & 0.050361 & 25.1 & 0.048826 & 7.7 & 0.050367 & 2.7\\
+$\alpha$   & 0.000035 & 0.000074 & 116.9 & 0.000038 & 16.4 & 0.000034 & 4.9\\
+$\beta$    & 0.950000 & 0.913461 & 4.0 & 0.946815 & 0.5 & 0.950201 & 0.2\\
+$\rho$     & $-0.200000$ & $-0.184725$ & 72.8 & $-0.200665$ & 23.8 & $-0.202253$ & 7.2\\
+$\sigma_v$ & 0.005000 & 0.006501 & 30.8 & 0.005097 & 4.9 & 0.004815 & 4.0\\
+$\rho_j$   & $-0.500000$ & $-0.580321$ & 323.0 & 0.253385 & 636.9 & 0.119107 & 796.5\\
+$\mu_v$    & 0.000600 & 0.000990 & 65.0 & 0.000672 & 15.5 & 0.000603 & 4.0\\
+$\kappa$   & 0.050000 & 0.086539 & 75.3 & 0.053185 & 10.2 & 0.049799 & 3.3\\
+$\theta$   & 0.000700 & 0.000837 & 30.9 & 0.000709 & 7.6 & 0.000679 & 3.9\\
 \midrule
-All diagnostics pass & & \multicolumn{2}{c}{20/20}
+All diagnostics pass & & \multicolumn{2}{c}{5/20}
 & \multicolumn{2}{c}{0/20} & \multicolumn{2}{c}{0/20}\\
-$\widehat R<1.05$ only & & \multicolumn{2}{c}{20/20}
-& \multicolumn{2}{c}{12/20} & \multicolumn{2}{c}{13/20}\\
+$\widehat R<1.05$ only & & \multicolumn{2}{c}{19/20}
+& \multicolumn{2}{c}{20/20} & \multicolumn{2}{c}{20/20}\\
 \bottomrule
 \end{tabular}%
 }
 \caption{\textbf{Simulation-based recovery of physical-measure SVCJ parameters.}
 The table reports posterior means and mean absolute percentage errors across
-20 independent replications.  Each replication uses nested return samples and
+20 independent replications. The table displays the three longest of five
+nested return samples used in each replication, together with
 four chains with 25,000 retained draws per chain. The penultimate row reports
 groups satisfying $\widehat R\leq1.01$ and bulk/tail ESS $\geq400$ for all
 reported parameters and the stored conditional log-likelihood; the final row
@@ -148,27 +150,28 @@ percentage error of the reported mean.}
 
 {\color{red}
 Table~\ref{tab:p_parameter_recovery_simulation} shows substantial improvement
-in the recovery of the mean-reversion parameters as the return sample grows.
-Mean APE for $\kappa$ falls from 1,695.6\% at $n=10$ to 1,073.6\% at $n=100$
-and 94.0\% at $n=1000$; the corresponding values for $\theta$ are 788.4\%,
-77.6\%, and 35.7\%. At $n=1000$, however, the mean $\kappa$ estimate is
-0.0962 against a true value of 0.05, and the empirical coverage of the 90\%
-credible intervals is only 60\% for both $\kappa$ and $\theta$. The co-jump
-loading $\rho_j$ remains weakly recovered, with mean APE increasing to
-358.9\% at $n=1000$.
+in most parameters as the return sample grows. Mean APE for $\kappa$ falls
+from 75.3\% at $n=1{,}000$ to 10.2\% at $n=10{,}000$ and 3.3\% at
+$n=100{,}000$; the corresponding values for $\theta$ are 30.9\%, 7.6\%, and
+3.9\%. At $n=100{,}000$, the posterior means of $\mu$, $\alpha$, $\beta$,
+$\sigma_v$, $\rho$, $\lambda$, $\mu_y$, $\sigma_y$, $\mu_v$, $\kappa$, and
+$\theta$ are all close to their generating values. The two main exceptions are
+$V_0$, whose mean APE remains 102.3\%, and the co-jump loading $\rho_j$, whose
+mean estimate has the wrong sign and whose mean APE rises to 796.5\%.
 }
 
 {\color{red}
-Diagnostic conclusions depend on the stated criterion. All 20 groups at
-$n=10$ pass the strict $\widehat R$--ESS criterion, but none do so at $n=100$
-or $n=1000$. Under the reference-aligned $\widehat R<1.05$ criterion alone,
-12/20 groups pass at $n=100$ and 13/20 at $n=1000$. The high pass rate for the
-shortest sample does not imply accurate recovery: ten returns provide little
-information about the full SVCJ parameter vector. Conversely, an
-$\widehat R$-only pass does not resolve low ESS in the longer samples. Thus the
-APE trend supports improvement with sample length, while the remaining mixing
-and coverage limitations preclude claiming reliable joint recovery at 1,000
-returns.
+Diagnostic conclusions depend on the stated criterion. The strict
+$\widehat R$--ESS criterion is satisfied by 5/20 groups at $n=1{,}000$ and by
+none at $n=10{,}000$ or $n=100{,}000$. Under the reference-aligned
+$\widehat R<1.05$ criterion alone, 19/20 groups pass at $n=1{,}000$ and all 20
+pass at each of the two longer samples. The contrast indicates that the large
+samples bring the chains into the same posterior region, but the retained
+draws remain too autocorrelated to meet the strict ESS requirement. Therefore,
+the recovery of most structural parameters at $n=100{,}000$ is strong evidence
+that the implementation targets the generating model, while the failures for
+$V_0$ and $\rho_j$ point to persistent weak identification rather than a
+general failure of parameter recovery.
 }
 
 \subsubsection{Estimation-window selection and QQ diagnostics}
