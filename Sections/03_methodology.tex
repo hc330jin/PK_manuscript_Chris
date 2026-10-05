@@ -53,7 +53,6 @@ out in $(\alpha,\beta)$ because this is the sampler's natural parameterization;
 the economically interpretable $(\kappa,\theta)$ are calculated from every
 retained draw and reported alongside the directly sampled parameters.
 
-{\color{red}
 We generate 20 independent master paths of 100,000 daily returns. Within each
 replication, estimation uses the nested prefixes
 \begin{equation}
@@ -76,7 +75,6 @@ conditionally within the same block.  An adaptive Fisher-transformed proposal
 for $\rho$ is also used during burn-in, and no sign restriction is imposed on
 $\rho_j$.  Posterior means and 90\% equal-tail credible intervals are computed
 from the pooled retained draws of the four chains.
-}
 
 For parameter $j$ and replication $b$, absolute percentage error is
 \begin{equation}
@@ -86,7 +84,6 @@ For parameter $j$ and replication $b$, absolute percentage error is
 \label{eq:p_parameter_ape}
 \end{equation}
 The reported mean APE averages this quantity across the 20 replications.
-{\color{red}
 We additionally calculate across-replication bias, RMSE, and empirical coverage
 of the 90\% credible interval.  Mixing is evaluated separately for each
 replication--sample-size pair using rank-normalized split $\widehat R$, bulk
@@ -99,11 +96,9 @@ $\widehat R<1.05$ for these quantities, without an ESS requirement. An
 $\widehat R$-only pass does not by itself establish reliable posterior
 estimation. Estimates from failed groups remain in the table rather than
 being selectively discarded.
-}
 
 \begin{table}[htbp]
 \centering
-\color{red}
 \scriptsize
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lrrrrrrr}
@@ -148,7 +143,6 @@ percentage error of the reported mean.}
 \label{tab:p_parameter_recovery_simulation}
 \end{table}
 
-{\color{red}
 Table~\ref{tab:p_parameter_recovery_simulation} shows substantial improvement
 in most parameters as the return sample grows. Mean APE for $\kappa$ falls
 from 75.3\% at $n=1{,}000$ to 10.2\% at $n=10{,}000$ and 3.3\% at
@@ -158,9 +152,7 @@ $\sigma_v$, $\rho$, $\lambda$, $\mu_y$, $\sigma_y$, $\mu_v$, $\kappa$, and
 $\theta$ are all close to their generating values. The two main exceptions are
 $V_0$, whose mean APE remains 102.3\%, and the co-jump loading $\rho_j$, whose
 mean estimate has the wrong sign and whose mean APE rises to 796.5\%.
-}
 
-{\color{red}
 Diagnostic conclusions depend on the stated criterion. The strict
 $\widehat R$--ESS criterion is satisfied by 5/20 groups at $n=1{,}000$ and by
 none at $n=10{,}000$ or $n=100{,}000$. Under the reference-aligned
@@ -172,12 +164,10 @@ the recovery of most structural parameters at $n=100{,}000$ is strong evidence
 that the implementation targets the generating model, while the failures for
 $V_0$ and $\rho_j$ point to persistent weak identification rather than a
 general failure of parameter recovery.
-}
 
 \subsubsection{Estimation-window selection and QQ diagnostics}
 \label{subsubsec:p_window_selection}
 
-{\color{red}
 The estimation window must balance local adaptation against identification.
 A short return window is insufficient for the joint SVCJ specification: it
 contains eleven structural parameters and latent states, while the jump block
@@ -187,9 +177,7 @@ This concern is consistent with the much longer daily samples used in the
 literature. \citet{ErakerJohannesPolson2003}
 estimate stochastic-volatility jump models from long S\&P~500 and Nasdaq
 histories, and \citet{ChaimLaurini2018} use 1,840 daily Bitcoin observations.
-}
 
-{\color{red}
 We therefore retain 1,000 returns as a pragmatic baseline rolling window. For a market
 that trades seven days per week, this corresponds to approximately 2.7 years
 and contains about 50 jump days in expectation at the simulation value
@@ -200,7 +188,6 @@ serve as robustness specifications, and all empirical estimates must be
 accompanied by chain-level convergence diagnostics. For target date $t$, the
 baseline window contains only returns dated strictly before $t$, which
 prevents look-ahead bias.
-}
 
 Model adequacy is assessed with a QQ plot of the standardized diffusion
 innovation after removing the posterior expected jump contribution,
@@ -215,6 +202,37 @@ Under a correctly specified diffusion component, its central quantiles should
 be close to those of a standard normal distribution. Tail deviations are
 interpreted as residual misspecification, not as a requirement that raw
 Bitcoin returns themselves be Gaussian.
+
+{\color{red}
+Figure~\ref{fig:p_posterior_residual_qq_n100000} reports this diagnostic for
+the $n=100{,}000$ simulation. The pooled posterior plug-in residuals use the
+four-chain posterior expected jump contribution and posterior mean lagged
+variance. Their central quantiles are close to the standard-normal benchmark,
+but the tails bend inward; the pooled residual standard deviation is 0.893 and
+kurtosis is 2.313. This compression is consistent with posterior-mean latent-
+state smoothing, because the variance and jump states are inferred from the
+same returns used to construct the residuals.
+
+The QQ plot is a model-residual diagnostic rather than a sufficient test of
+MCMC convergence. At $n=100{,}000$, all 20 replications satisfy the
+reference-aligned $\widehat R<1.05$ criterion, indicating that the four chains
+reach similar posterior regions, but none satisfies the joint strict criterion
+of $\widehat R\leq1.01$ with bulk and tail ESS of at least 400 for every
+reported quantity. Consequently, the QQ plot supports approximate Gaussianity
+in the center of the fitted diffusion residual distribution, while the ESS
+results preclude claiming full chain convergence from the QQ plot alone.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_residual_QQ_posterior_n100000_transparent.png}
+\caption{\textbf{Posterior residual QQ diagnostic for the $n=100{,}000$
+physical-measure simulation.} The solid curve pools two million standardized
+posterior plug-in residuals across 20 replications, the shaded band is the
+pointwise 95\% range across replications, and the dashed line is the
+standard-normal benchmark.}
+\label{fig:p_posterior_residual_qq_n100000}
+\end{figure}
+}
 
 \subsection{Risk-neutral parameter estimation}
 \label{subsec:q_parameter_estimation}
