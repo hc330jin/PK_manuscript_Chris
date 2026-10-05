@@ -395,49 +395,11 @@ more specifically, we have the structure
 \times
 \text{parameter prior}.\]
 Note that: Bayesian inference therefore does not produce only one estimated value for each parameter. Instead, it produces a posterior distribution that describes the possible values of each parameter after the observed Bitcoin returns have been taken into account. In this experiment, posterior means are used as parameter estimates, while posterior quantiles can be used to construct credible intervals and describe estimation uncertainty.
-\begin{comment}
-Bayesian inference is a statistical framework for updating beliefs about
-unknown quantities in light of observed data. Unlike the frequentist
-approach, which treats parameters as fixed but unknown constants, Bayesian
-inference treats the parameter vector $\bm{\Theta}$ (in the SVCJ setting,
-the parameters $\kappa, \theta, \sigma_v, \rho, \lambda$, and the
-jump-related terms) as a random variable with its own probability
-distribution.
- 
-The framework rests on Bayes' theorem:
-\begin{equation}
-    p(\bm{\Theta} \mid y) = \frac{p(y \mid \bm{\Theta})\,p(\bm{\Theta})}{p(y)}
-    \propto p(y \mid \bm{\Theta})\,p(\bm{\Theta})
-    \label{eq:bayes}
-\end{equation}
-where $y$ denotes the observed data (daily Bitcoin returns). Three objects
-matter here:
- 
-\begin{itemize}
-    \item \textbf{Prior}, $p(\bm{\Theta})$ --- the belief about $\bm{\Theta}$
-    before observing any data, specified by the researcher.
-    \item \textbf{Likelihood}, $p(y \mid \bm{\Theta})$ --- the probability of
-    observing the data given a particular value of $\bm{\Theta}$, determined
-    by the SVCJ model's dynamics.
-    \item \textbf{Posterior}, $p(\bm{\Theta} \mid y)$ --- the updated belief
-    about $\bm{\Theta}$ after observing the data, and the actual object of
-    inference.
-\end{itemize}
- 
-The normalizing constant $p(y)$ does not depend on $\bm{\Theta}$ and can be
-dropped in the proportionality in \eqref{eq:bayes}; this becomes important
-in Section~\ref{sec:mcmc}.
- 
-In the SVCJ setting, Bayesian inference means estimating the entire
-posterior distribution of the parameters and the latent variance path
-$V_t$, rather than a single point estimate --- giving not just parameter
-values but a full characterization of estimation uncertainty (e.g.,
-credible intervals), which is valuable when addressing the pricing kernel
-puzzle.
-\end{comment}
+\clearpage
+\subsection*{How MCMC (Markov Chain Monte Carlo) works:}
 \clearpage
 
-\subsection*{Why MCMC Works: Stationarity, Detailed Balance, and a Discrete Example}
+\subsection*{[Teng]Why MCMC Works: Stationarity, Detailed Balance, and a Discrete Example}
 \label{subsec:mcmc_theory}
 
 The preceding subsection describes what the Metropolis--Hastings recipe does.
