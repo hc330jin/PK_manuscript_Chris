@@ -396,7 +396,21 @@ more specifically, we have the structure
 \text{parameter prior}.\]
 Note that: Bayesian inference therefore does not produce only one estimated value for each parameter. Instead, it produces a posterior distribution that describes the possible values of each parameter after the observed Bitcoin returns have been taken into account. In this experiment, posterior means are used as parameter estimates, while posterior quantiles can be used to construct credible intervals and describe estimation uncertainty.
 \clearpage
-\subsection*{How MCMC (Markov Chain Monte Carlo) works:}
+\subsection*{Why Does MCMC (Markov Chain Monte Carlo) Work? My Explanation and Notes}
+\subsubsection*{GOAL}
+
+If we only have relative probability of each state, how do we design an update rule such that the frequency of chain visiting each state in long term is exactly the target distribution?
+
+\subsubsection*{MCMC:}
+Construct a Markov chain with its stationary distribution equals to target distribution.
+
+\noindent In our \textbf{parameter recovery under $\mathbb{P}$ measure simulation study}, we want to estimate $p(\Theta, L_{1:T}|y_{1:T})$ by $p(y_{1:T}|\Theta, L_{1:T})p(L_{1:T}|\Theta)p(\Theta)$. \\"Markov Chain" generates samples by updating step-by-step, and "Monte Carlo" takes expectation of these samples in Markov chain to attain posterior mean.
+
+\subsubsection*{Stationary Distribution}
+
+
+
+
 \clearpage
 
 \subsection*{[Teng]Why MCMC Works: Stationarity, Detailed Balance, and a Discrete Example}
