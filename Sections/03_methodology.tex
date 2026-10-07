@@ -204,33 +204,47 @@ interpreted as residual misspecification, not as a requirement that raw
 Bitcoin returns themselves be Gaussian.
 
 {\color{red}
-Figure~\ref{fig:p_posterior_residual_qq_n100000} reports this diagnostic for
-the $n=100{,}000$ simulation. The pooled posterior plug-in residuals use the
+Figure~\ref{fig:p_posterior_residual_qq_comparison} compares this diagnostic
+for the $n=1{,}000$, $10{,}000$, and $100{,}000$ nested prefixes of the same
+$T=100{,}000$ master paths. The pooled posterior plug-in residuals use the
 four-chain posterior expected jump contribution and posterior mean lagged
-variance. Their central quantiles are close to the standard-normal benchmark,
-but the tails bend inward; the pooled residual standard deviation is 0.893 and
-kurtosis is 2.313. This compression is consistent with posterior-mean latent-
-state smoothing, because the variance and jump states are inferred from the
-same returns used to construct the residuals.
+variance. Their central quantiles are close to the standard-normal benchmark
+at all three sample lengths, but the tails bend inward. The pooled residual
+standard deviations are 0.876, 0.892, and 0.893, while the corresponding
+kurtoses are 2.339, 2.320, and 2.313. Increasing the sample length therefore
+does not remove the tail compression. This pattern is consistent with
+posterior-mean latent-state smoothing, because the variance and jump states are
+inferred from the same returns used to construct the residuals.
 
 The QQ plot is a model-residual diagnostic rather than a sufficient test of
-MCMC convergence. At $n=100{,}000$, all 20 replications satisfy the
-reference-aligned $\widehat R<1.05$ criterion, indicating that the four chains
-reach similar posterior regions, but none satisfies the joint strict criterion
-of $\widehat R\leq1.01$ with bulk and tail ESS of at least 400 for every
-reported quantity. Consequently, the QQ plot supports approximate Gaussianity
-in the center of the fitted diffusion residual distribution, while the ESS
-results preclude claiming full chain convergence from the QQ plot alone.
+MCMC convergence. Under the reference-aligned $\widehat R<1.05$ criterion,
+19/20 replications pass at $n=1{,}000$, and 20/20 pass at both
+$n=10{,}000$ and $n=100{,}000$, indicating that the four chains generally
+reach similar posterior regions. However, the joint strict criterion of
+$\widehat R\leq1.01$ with bulk and tail ESS of at least 400 for every reported
+quantity is satisfied by only 5/20 replications at $n=1{,}000$ and by none at
+the two longer samples. Consequently, the QQ plots support approximate
+Gaussianity in the center of the fitted diffusion residual distributions,
+while the ESS results preclude claiming full chain convergence from the QQ
+plots alone.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_residual_QQ_posterior_n100000_transparent.png}
-\caption{\textbf{Posterior residual QQ diagnostic for the $n=100{,}000$
-physical-measure simulation.} The solid curve pools two million standardized
-posterior plug-in residuals across 20 replications, the shaded band is the
+\subfigure[$n=1{,}000$]{%
+\includegraphics[width=0.32\textwidth]{Sections/03_methodology_figures/P_residual_QQ_posterior_n1000_transparent.png}}
+\hfill
+\subfigure[$n=10{,}000$]{%
+\includegraphics[width=0.32\textwidth]{Sections/03_methodology_figures/P_residual_QQ_posterior_n10000_transparent.png}}
+\hfill
+\subfigure[$n=100{,}000$]{%
+\includegraphics[width=0.32\textwidth]{Sections/03_methodology_figures/P_residual_QQ_posterior_n100000_transparent.png}}
+\caption{\textbf{Posterior residual QQ diagnostics across nested
+physical-measure simulation samples.} All panels use prefixes of the same 20
+master paths of length $T=100{,}000$. The solid curve pools standardized
+posterior plug-in residuals across replications, the shaded band is the
 pointwise 95\% range across replications, and the dashed line is the
 standard-normal benchmark.}
-\label{fig:p_posterior_residual_qq_n100000}
+\label{fig:p_posterior_residual_qq_comparison}
 \end{figure}
 }
 
