@@ -449,7 +449,7 @@ For example, $P(2,2)=\underbrace{\dfrac13}_{\text{propose itself}}+\underbrace{\
 \end{bmatrix}=\begin{bmatrix}
     1/6 & 2/6 & 3/6
 \end{bmatrix}P.$$
-{\color{blue}If we choose another (random-walk-typed) proposal $q(y|x)=\dfrac{1}{2}\mathbf{1}_{\{y\ne x\}}$, for $x, y\in\mathcal{X}$}, calculate the transition matrix is 
+{\color{blue}If we choose another (random-walk-type) proposal\footnote{\textcolor{blue}{The usual additive random-walk proposal has the form $Y=x+\varepsilon$, where the distribution of the increment $\varepsilon$ does not depend on $x$. Here, ``random-walk-type'' instead refers to a random walk on the complete graph with vertices $\mathcal{X}=\{1,2,3\}$, moving uniformly to either of the other two vertices.}} $q(y|x)=\dfrac{1}{2}\mathbf{1}_{\{y\ne x\}}$, for $x, y\in\mathcal{X}$}, calculate the transition matrix is
 $$P=\begin{bmatrix}
     0 & 1/2 & 1/2 \\
     1/4 & 1/4 & 1/2 \\
