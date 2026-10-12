@@ -420,7 +420,11 @@ $$\sum_{x}\pi(x)P(x,y)=\sum_{x}\pi(y)P(y,x)=\pi(y)\sum_{x}P(y,x)=\pi(y)\cdot 1=\
 \subsubsection*{Metropolis-Hastings (MH)}
 In current state $x$, MH do the following:
 \begin{enumerate}
-    \item Draw a proposed state $y$ from proposal distribution $q(\cdot|x)$, that is $Y\sim q(\cdot |x)$. Proposal can be arbitrarily chosen depends on ability of exploring states, computation efficiency, etc.
+    \item Draw a proposed state $y$ from proposal distribution $q(\cdot|x)$, that is $Y\sim q(\cdot |x)$. Proposal can be arbitrarily chosen depends on ability of exploring states, computation efficiency, etc. There are two main types of proposal distribution:
+    \begin{enumerate}
+        \item {\color{blue} Independent type: The distribution does not depend on current state $x$, then $q(y|x)$ can be rewritten as $q(y)$. Thus, we draw proposal value $Y\sim q(y)$}
+        \item {\color{blue} Random-walk type: Proposal value $Y$ takes the from $Y=x+\varepsilon$, where $\varepsilon$ is independent from $x$ and follows a distribution $g$, then $q(y|x)$ can be rewritten as $q(y|x)=g(y-x)$}
+    \end{enumerate}
     \item Accept this proposed state in probability $\alpha(x,y)=\min\left\{1,\dfrac{\pi(y)q(x|y)}{\pi(x)q(y|x)}\right\}\overset{\pi=w/Z}{=}\min\left\{1,\dfrac{w(y)q(x|y)}{w(x)q(y|x)}\right\}$. Moreover, if proposal is symmetric, then $\alpha(x,y)=\min\left\{1,\dfrac{w(y)}{w(x)}\right\}$, which means moving to state that have higher weight must be accepted while moving to state that have lower weight might also be accepted.
 \end{enumerate}
 For different state $x\ne y$, actual transition probability is $$P(x,y)=q(y|x)\alpha(x,y).$$
@@ -429,7 +433,7 @@ $$\pi(x)P(x,y)=\pi(x)q(y|x)\alpha(x,y)=\pi(x)q(y|x)\min\left\{1,\dfrac{\pi(y)q(x
 Similarly, $$\pi(y)P(y,x)=\pi(y)q(x|y)\alpha(y,x)=\pi(y)q(x|y)\min\left\{1,\dfrac{\pi(x)q(y|x)}{\pi(y)q(x|y)}\right\}=\min\{\pi(y)q(x|y), \pi(x)q(y|x)\}$$
 Hence, $$\pi(x)P(x,y)=\pi(y)P(y,x)$$
 
-\subsubsection*{A toy example}
+\subsubsection*{A toy discrete example}
 Let $\mathcal{X}=\{1,2,3\}$ and suppose only the unnormalized weights
 $$w(1)=1,\qquad w(2)=2,\qquad w(3)=3$$
 can be evaluated, the constant $w(1)+w(2)+w(3)=6$ being treated as unknown
@@ -461,16 +465,32 @@ It also satisfies $$\begin{bmatrix}
     1/6 & 2/6 & 3/6
 \end{bmatrix}P.$$
 
-\subsubsection*{Another Example}
+\subsubsection*{A continuous Example}
 Now we try to sample a sequence follows $$f(x)\propto\exp(\sin(10x)) \text{ for } x\in\mathcal{X}=[-3,3].$$
 \begin{enumerate}
-    \item Choose uniform proposal $q(\cdot |x)=\dfrac17$, then $\alpha(x,y)=\min\{1,\exp(10\sin(y))/\exp(10\sin(x))\}$.
-    \item Set initial state $X_0=0$
+    \item Choose uniform proposal $q(y|x)=q(y)=\dfrac16$, here applying independent type MH since proposed value doesn't depend on current $x$. Then $$\alpha(x,y)=\min\left\{1,\dfrac{\exp(\sin(10y)}{\exp(\sin(10x)}\right\}=\min\{1,\exp\left(\sin(10y)-\sin(10x)\right)\}.$$
+    \item Set initial state $X_0=-3$, it will not be saved in generated samples. \\
+
+For $t=1, 2, \cdots$ do:
+
     \item Draw $Y_t$ uniformly from $\mathcal{X}$ then calculate $\alpha(X_t,Y_t)$.
     \item Draw $U_t\sim \mathrm{Uniform}(0,1)$
     \item If $U_t<\alpha(X_t,Y_t)$, let $X_{t+1}=Y_t$, otherwise let $X_{t+1}=X_t$
-    \item Repeat step 3 to 5
+
 \end{enumerate}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{mcmc_example.png}
+    \caption{Result of using MCMC to sample a distribution in continuous case}
+    \label{fig:placeholder}
+\end{figure}
+
+
+
+
+
+
 
 
 
