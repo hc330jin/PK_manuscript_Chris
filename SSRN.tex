@@ -93,6 +93,89 @@ BTC return itself should be Gaussian.
 %\addcontentsline{toc}{section}{Appendix A}
 \section{Appendix}
 \label{sec:appendix}
+
+\clearpage
+\subsection{Full MCMC Diagnostics for the $T=100{,}000$ Physical-Measure Simulation}
+\label{app:p_t100k_full_mcmc_diagnostics}
+
+{\color{red}
+Figure~\ref{fig:appendix_p_t100k_full_mcmc_diagnostics} supplements the
+one-page trace overview in Figure~\ref{fig:p_t100k_mcmc_diagnostics}. For each
+sampled or derived parameter, it reports the four-chain trace and ACF before
+removing burn-in, the corresponding trace and ACF after burn-in, and the pooled
+retained histogram. The vertical boundary is sweep 25,000, and dotted
+reference lines mark the generating value. The appendix retains both
+$(\alpha,\beta)$ and the equivalent $(\kappa,\theta)$ parameterization for
+completeness; the main text displays only $(\kappa,\theta)$ to align with the
+risk-neutral specification.
+
+\begin{figure}[p]
+\centering
+\textbf{(a) $\mu$}\\[-0.3em]
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_mu_mcmc_diagnostics.png}\\[-0.2em]
+\textbf{(b) $\alpha$}\\[-0.3em]
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_alpha_mcmc_diagnostics.png}
+\caption{\textbf{Full MCMC diagnostics for the $T=n=100{,}000$
+physical-measure simulation.} Each parameter panel reports the all-sweep trace
+and ACF, post-burn-in trace and ACF, and pooled retained histogram across four
+chains.}
+\label{fig:appendix_p_t100k_full_mcmc_diagnostics}
+\end{figure}
+
+\begin{figure}[p]\ContinuedFloat
+\centering
+\textbf{(c) $\beta$}\\[-0.3em]
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_beta_mcmc_diagnostics.png}\\[-0.2em]
+\textbf{(d) $\sigma_v$}\\[-0.3em]
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_sigma_v_mcmc_diagnostics.png}
+\caption[]{Full MCMC diagnostics for the $T=n=100{,}000$ physical-measure simulation (continued).}
+\end{figure}
+
+\begin{figure}[p]\ContinuedFloat
+\centering
+\textbf{(e) $\rho$}\\[-0.3em]
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_rho_mcmc_diagnostics.png}\\[-0.2em]
+\textbf{(f) $\lambda$}\\[-0.3em]
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_lambda_mcmc_diagnostics.png}
+\caption[]{Full MCMC diagnostics for the $T=n=100{,}000$ physical-measure simulation (continued).}
+\end{figure}
+
+\begin{figure}[p]\ContinuedFloat
+\centering
+\textbf{(g) $\mu_y$}\\[-0.3em]
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_mu_y_mcmc_diagnostics.png}\\[-0.2em]
+\textbf{(h) $\sigma_y$}\\[-0.3em]
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_sigma_y_mcmc_diagnostics.png}
+\caption[]{Full MCMC diagnostics for the $T=n=100{,}000$ physical-measure simulation (continued).}
+\end{figure}
+
+\begin{figure}[p]\ContinuedFloat
+\centering
+\textbf{(i) $\rho_j$}\\[-0.3em]
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_rho_j_mcmc_diagnostics.png}\\[-0.2em]
+\textbf{(j) $\mu_v$}\\[-0.3em]
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_mu_v_mcmc_diagnostics.png}
+\caption[]{Full MCMC diagnostics for the $T=n=100{,}000$ physical-measure simulation (continued).}
+\end{figure}
+
+\begin{figure}[p]\ContinuedFloat
+\centering
+\textbf{(k) $V_0$}\\[-0.3em]
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_V0_mcmc_diagnostics.png}\\[-0.2em]
+\textbf{(l) $\kappa$}\\[-0.3em]
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_kappa_mcmc_diagnostics.png}
+\caption[]{Full MCMC diagnostics for the $T=n=100{,}000$ physical-measure simulation (continued).}
+\end{figure}
+
+\begin{figure}[p]\ContinuedFloat
+\centering
+\textbf{(m) $\theta$}\\[-0.3em]
+\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_theta_mcmc_diagnostics.png}
+\caption[]{Full MCMC diagnostics for the $T=n=100{,}000$ physical-measure simulation (continued).}
+\end{figure}
+}
+
+\clearpage
 \begin{table}[h]
     \centering
     \begin{tabular}{llll}

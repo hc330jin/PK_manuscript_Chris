@@ -198,71 +198,23 @@ insufficient for reliable joint inference. We retain the 25,000-sweep burn-in
 because it includes the entire adaptive phase; discarding additional draws
 without extending the run would reduce ESS and would not resolve slow mixing.
 
-Figure~\ref{fig:p_t100k_mcmc_diagnostics} displays, for every sampled or
-derived parameter, the four-chain trace and ACF before removing burn-in, the
-corresponding trace and ACF after burn-in, and the pooled retained histogram.
+Figure~\ref{fig:p_t100k_mcmc_diagnostics} provides a one-page overview of
+the complete four-chain traces. To align the physical-measure presentation
+with the risk-neutral parameterization, the figure reports $\kappa$ and
+$\theta$ but omits $\alpha=\kappa\theta$ and $\beta=1-\kappa$. The complete
+parameter-by-parameter panels---including the all-sweep and post-burn-in
+traces, ACFs, and retained histograms---are reported in
+Appendix~\ref{app:p_t100k_full_mcmc_diagnostics}.
 
 \begin{figure}[p]
 \centering
-\textbf{(a) $\mu$}\\[-0.3em]
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_mu_mcmc_diagnostics.png}\\[-0.2em]
-\textbf{(b) $\alpha$}\\[-0.3em]
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_alpha_mcmc_diagnostics.png}
-\caption{\textbf{MCMC diagnostics for the $T=n=100{,}000$ physical-measure simulation.}
-Each panel reports the all-sweep trace and ACF, post-burn-in trace and ACF, and pooled retained histogram across four chains. The vertical boundary is sweep 25,000 and dotted reference lines mark the generating value.}
+\includegraphics[width=0.97\textwidth,height=0.82\textheight,keepaspectratio]{Sections/03_methodology_figures/P_T100k_trace_overview_transparent.png}
+\caption{\textbf{Four-chain trace overview for the $T=n=100{,}000$
+physical-measure simulation.} The panels show all 50,000 sweeps for the 11
+parameters retained under the $(\kappa,\theta)$ parameterization. Vertical
+dotted lines mark the end of the 25,000-sweep adaptive burn-in, and horizontal
+dashed lines mark the generating values.}
 \label{fig:p_t100k_mcmc_diagnostics}
-\end{figure}
-
-\begin{figure}[p]\ContinuedFloat
-\centering
-\textbf{(c) $\beta$}\\[-0.3em]
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_beta_mcmc_diagnostics.png}\\[-0.2em]
-\textbf{(d) $\sigma_v$}\\[-0.3em]
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_sigma_v_mcmc_diagnostics.png}
-\caption[]{MCMC diagnostics for the $T=n=100{,}000$ physical-measure simulation (continued).}
-\end{figure}
-
-\begin{figure}[p]\ContinuedFloat
-\centering
-\textbf{(e) $\rho$}\\[-0.3em]
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_rho_mcmc_diagnostics.png}\\[-0.2em]
-\textbf{(f) $\lambda$}\\[-0.3em]
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_lambda_mcmc_diagnostics.png}
-\caption[]{MCMC diagnostics for the $T=n=100{,}000$ physical-measure simulation (continued).}
-\end{figure}
-
-\begin{figure}[p]\ContinuedFloat
-\centering
-\textbf{(g) $\mu_y$}\\[-0.3em]
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_mu_y_mcmc_diagnostics.png}\\[-0.2em]
-\textbf{(h) $\sigma_y$}\\[-0.3em]
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_sigma_y_mcmc_diagnostics.png}
-\caption[]{MCMC diagnostics for the $T=n=100{,}000$ physical-measure simulation (continued).}
-\end{figure}
-
-\begin{figure}[p]\ContinuedFloat
-\centering
-\textbf{(i) $\rho_j$}\\[-0.3em]
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_rho_j_mcmc_diagnostics.png}\\[-0.2em]
-\textbf{(j) $\mu_v$}\\[-0.3em]
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_mu_v_mcmc_diagnostics.png}
-\caption[]{MCMC diagnostics for the $T=n=100{,}000$ physical-measure simulation (continued).}
-\end{figure}
-
-\begin{figure}[p]\ContinuedFloat
-\centering
-\textbf{(k) $V_0$}\\[-0.3em]
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_V0_mcmc_diagnostics.png}\\[-0.2em]
-\textbf{(l) $\kappa$}\\[-0.3em]
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_kappa_mcmc_diagnostics.png}
-\caption[]{MCMC diagnostics for the $T=n=100{,}000$ physical-measure simulation (continued).}
-\end{figure}
-
-\begin{figure}[p]\ContinuedFloat
-\centering
-\textbf{(m) $\theta$}\\[-0.3em]
-\includegraphics[width=0.72\textwidth]{Sections/03_methodology_figures/P_T100k_theta_mcmc_diagnostics.png}
-\caption[]{MCMC diagnostics for the $T=n=100{,}000$ physical-measure simulation (continued).}
 \end{figure}
 }
 
@@ -342,15 +294,19 @@ $\widetilde\epsilon_t$ is approximately standard normal. Unlike the former
 plug-in construction, Equation~\eqref{eq:p_pit_mixture_cdf} assigns jump days
 their full mixture probability rather than subtracting an expected jump.
 
-For the replication-1 diagnostic rerun at $T=n=100{,}000$, we average over
-$G=500$ paired posterior draws, comprising 125 evenly spaced retained draws
-from each of the four chains, and evaluate the exponential integral with
-20-node Gauss--Laguerre quadrature. The resulting PIT residuals have mean
-0.00037, standard deviation 0.97356, skewness $-0.00765$, and kurtosis 2.9694.
-The corresponding posterior plug-in residuals have standard deviation 0.89231
-and kurtosis 2.3184. Figure~\ref{fig:p_posterior_residual_qq_comparison} shows
-that posterior averaging over the complete jump-mixture CDF substantially
-removes the inward tail bending of the plug-in QQ plot.
+For each replication-1 nested sample, we average over $G=500$ paired posterior
+draws, comprising 125 evenly spaced retained draws from each of the four
+chains, and evaluate the exponential integral with 20-node Gauss--Laguerre
+quadrature. At $T=1{,}000$, $10{,}000$, and $100{,}000$, respectively, the PIT
+residual standard deviations are 0.95283, 0.96986, and 0.97356, while their
+kurtoses are 2.7827, 2.9508, and 2.9694. The corresponding means are
+$-0.00755$, $-0.00323$, and 0.00037, and the skewness values are $-0.03266$,
+$-0.00563$, and $-0.00765$. By comparison, the posterior plug-in residual
+standard deviations are 0.89015, 0.89616, and 0.89231, with kurtoses of
+2.4621, 2.3477, and 2.3184. Figure~\ref{fig:p_posterior_residual_qq_comparison}
+shows that posterior averaging over the complete jump-mixture CDF substantially
+reduces the inward tail bending, with the agreement improving as the sample
+length increases.
 
 The PIT calculation uses smoothed full-sample draws of $V_{t-1}$ and is
 therefore an in-sample model diagnostic rather than a genuine one-step-ahead
@@ -363,12 +319,19 @@ the close-to-normal PIT residuals.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.78\textwidth]{Sections/03_methodology_figures/P_residual_QQ_PIT_n100000_transparent.png}
-\caption{\textbf{Posterior-averaged PIT residual QQ diagnostic for the
-$T=n=100{,}000$ physical-measure simulation.} The figure uses replication 1,
+\subfigure[$T=1{,}000$]{%
+\includegraphics[width=0.32\textwidth]{Sections/03_methodology_figures/P_residual_QQ_PIT_n1000_transparent.png}}
+\hfill
+\subfigure[$T=10{,}000$]{%
+\includegraphics[width=0.32\textwidth]{Sections/03_methodology_figures/P_residual_QQ_PIT_n10000_transparent.png}}
+\hfill
+\subfigure[$T=100{,}000$]{%
+\includegraphics[width=0.32\textwidth]{Sections/03_methodology_figures/P_residual_QQ_PIT_n100000_transparent.png}}
+\caption{\textbf{Posterior-averaged PIT residual QQ diagnostics across nested
+physical-measure simulation samples.} Each panel uses replication 1,
 $G=500$ paired post-burn-in posterior draws across four chains, and 20-node
-Gauss--Laguerre quadrature for the jump-mixture CDF. The solid curve gives the
-PIT-residual quantiles and the dashed line is the standard-normal benchmark.}
+Gauss--Laguerre quadrature for the jump-mixture CDF. The solid curves give the
+PIT-residual quantiles and the dashed lines are the standard-normal benchmark.}
 \label{fig:p_posterior_residual_qq_comparison}
 \end{figure}
 }
