@@ -27,9 +27,13 @@ $\theta^P=\alpha^P/(1-\beta^P)$ and mean-reversion rate
 $\kappa^P=1-\beta^P$.
 
 We use Bayesian data augmentation to update the structural parameters jointly
-with the latent variance path, jump indicators, and jump sizes. The first half
-of every Markov chain is discarded as burn-in, and posterior means summarize
-the retained draws. Successive rolling windows are warm-started from the
+with the latent variance path, jump indicators, and jump sizes. {\color{red}For
+the empirical rolling estimation, each daily window is estimated using four
+chains of 50,000 sweeps, with the first 25,000 sweeps discarded as adaptive
+burn-in. Posterior means are computed from the pooled retained draws. The
+rolling estimator uses the same B2+C+E kernel described below, together with
+ancillary--sufficiency interweaving and the adaptive Fisher-transformed
+proposal for $\rho$.} Successive rolling windows are warm-started from the
 preceding posterior mean, while the latent jump indicators remain stochastic
 states updated within the sampler rather than externally imposed observations.
 
@@ -48,10 +52,12 @@ reference implementation,
    -0.01,0.11,-0.5,0.0006,0.0007)'.
 \label{eq:p_simulation_true_parameters}
 \end{align}
-These values imply $\kappa=0.05$ and $\theta=0.0007$.  Estimation is carried
-out in $(\alpha,\beta)$ because this is the sampler's natural parameterization;
-the economically interpretable $(\kappa,\theta)$ are calculated from every
-retained draw and reported alongside the directly sampled parameters.
+These values imply $\kappa=0.05$ and $\theta=0.0007$.  {\color{red}The baseline
+conditional block is implemented in $(\alpha,\beta)$, while the B2 move below
+additionally proposes the transformed coordinates $(\kappa,\theta)$ jointly
+with $\sigma_v$.} The economically interpretable $(\kappa,\theta)$ are
+calculated from every retained draw and reported alongside the directly
+sampled parameters.
 
 We generate 20 independent master paths of 100,000 daily returns. Within each
 replication, estimation uses the nested prefixes

@@ -67,14 +67,18 @@
 \subsection{Physical-measure estimates and diagnostics}
 \label{sec:p-estimation-results}
 
-For every calendar day in 2024, the information set contains the preceding
-1,000 returns and excludes the return dated $t$, preventing look-ahead bias.
-Each chain is warm-started from the preceding day's posterior mean and saved
-immediately for restartability. The short-period diagnostic uses the final 90
-returns of 2024. Its QQ plot is a specification diagnostic for the diffusion
-innovation after removing posterior expected jumps; departures in the tails
-therefore indicate residual misspecification rather than evidence that the raw
-BTC return itself should be Gaussian.
+{\color{red}For every calendar day in 2024, the information set contains the
+preceding 1,000 returns and excludes the return dated $t$, preventing
+look-ahead bias. Each daily window is estimated using four chains of 50,000
+sweeps, with the first 25,000 sweeps discarded as adaptive burn-in. The chains
+are initialized around the preceding day's posterior mean and saved for
+restartability. The residual diagnostic uses the posterior-averaged
+probability integral transform (PIT): for each return it averages the complete
+normal--jump mixture CDF over paired post-burn-in parameter and latent-variance
+draws and then applies the inverse standard-normal CDF. The resulting QQ plot
+is an in-sample conditional-distribution diagnostic; it is neither a test that
+raw Bitcoin returns are Gaussian nor, by itself, evidence of MCMC
+convergence.}
 
 
 
