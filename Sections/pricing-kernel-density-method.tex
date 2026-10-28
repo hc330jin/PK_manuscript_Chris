@@ -1,7 +1,9 @@
 \subsection{Posterior-predictive density-ratio pricing kernels}
 \label{subsec:pk-density-method}
 
-We estimate a daily sequence of seven-calendar-day pricing kernels for Bitcoin.
+With the physical and risk-neutral estimation procedures in place, we combine
+their predictive distributions to estimate a daily sequence of
+seven-calendar-day pricing kernels for Bitcoin.
 For conditioning date $t$, the common state variable under both measures is the
 cumulative BTC/USD log return
 \begin{equation}
@@ -18,7 +20,7 @@ dividend rates, the pricing kernel is therefore estimated as
     \label{eq:pk-density-ratio}
 \end{equation}
 
-Our baseline implementation, denoted Scheme B, propagates physical-measure
+Our baseline implementation propagates physical-measure
 parameter and state uncertainty but uses a daily plug-in risk-neutral
 calibration. Under $P$, we combine the four MCMC chains for date $t$ only after
 burn-in and thinning. Each retained SVCJ parameter vector remains paired with
@@ -61,7 +63,10 @@ audit
  \label{eq:pk-numerical-audit}
 \end{equation}
 
-The January 2024 pilot contains all 31 conditioning dates. The maximum density
+The formal empirical period is the full 2024 calendar year. While the
+physical-measure estimation is being refined, we restrict this methodological
+illustration to a January 2024 pilot containing all 31 conditioning dates;
+the pilot is not the final full-year empirical analysis. The maximum density
 normalization error is $4.44\times10^{-16}$, the maximum density-ratio identity
 error is $5.55\times10^{-16}$, and the smallest baseline common-support mass is
 $0.9366$. The $Q^{\mathrm{USD}}$ martingale z-statistics range from $-2.05$ to
@@ -71,6 +76,66 @@ current strict convergence screen and records 10--14 parameter warnings. We reta
 and flag these dates rather than selecting on convergence while the
 $P$-measure estimation is being improved.
 
+Figures~\ref{fig:pk-density-20240101} and~\ref{fig:pk-density-20240108}
+illustrate the construction for January 1 and January 8, 2024. In each figure,
+the upper panel compares the physical and USD risk-neutral predictive
+densities, while the lower panel reports their ratio only on the common
+empirical support $A_t$. The legend values $h=0.75$, $1$, and $1.25$ denote
+multipliers of the measure-specific baseline bandwidths, rather than absolute
+bandwidths. The curves are close across these smoothing choices over much of
+the displayed support, although local differences remain near its edges.
+The January 1 ratio has several turning points, whereas the January 8 ratio
+has a broad trough around the center and rises toward both ends of its valid
+support. These descriptive shapes illustrate the output of the procedure;
+bandwidth agreement alone does not resolve the convergence warnings or
+establish a statistically significant violation of monotonicity.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.96\textwidth]{Sections/03_methodology_figures/pk_density_2024-01-01.png}
+\caption{\textbf{Predictive densities and pricing kernel on January 1, 2024.}
+The upper panel shows Gaussian KDEs of seven-calendar-day cumulative BTC/USD
+log returns under $P$ (blue) and $Q^{\mathrm{USD}}$ (red). The lower panel
+shows $\widehat q_t^{\mathrm{USD}}/\widehat p_t$ on $A_t$, the intersection
+of the two empirical 0.5--99.5 percentile intervals. Each measure uses
+100,000 simulated paths. Solid, dotted, and dashed curves use baseline
+bandwidth multipliers of 1, 0.75, and 1.25, respectively. The physical input
+fails the strict convergence screen; the figure is a pilot illustration.}
+\label{fig:pk-density-20240101}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.96\textwidth]{Sections/03_methodology_figures/pk_density_2024-01-08.png}
+\caption{\textbf{Predictive densities and pricing kernel on January 8, 2024.}
+The panels, simulation size, support restriction, colors, and bandwidth
+multipliers follow Figure~\ref{fig:pk-density-20240101}. The ratio is evaluated
+only on this date's own common empirical support. The physical input fails
+the strict convergence screen, so the apparent trough and tail increases
+are descriptive pilot results.}
+\label{fig:pk-density-20240108}
+\end{figure}
+
+Figure~\ref{fig:january-pk-heatmap} collects the baseline-bandwidth ratios for
+all 31 conditioning dates. Each row retains its own common-support interval;
+white regions outside these intervals represent unreported states, not zero
+state prices. The heatmap provides a compact view of daily variation in both
+the estimated ratio and its available support. As all January physical runs
+fail the strict convergence screen, this variation is not yet interpreted as
+evidence of changing risk preferences or market regimes.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.96\textwidth]{Sections/03_methodology_figures/january_pk_heatmap.png}
+\caption{\textbf{Daily seven-day pricing kernels in the January 2024 pilot.}
+Rows correspond to conditioning dates and columns to cumulative BTC/USD log
+returns. Color reports the density ratio at the baseline bandwidth
+multiplier of 1; white areas lie outside each date's common empirical support
+and contain no reported estimate. All 31 dates are retained despite
+physical-measure convergence warnings.}
+\label{fig:january-pk-heatmap}
+\end{figure}
+
 Finally, the conditioning information sets are not exactly synchronous. The
 physical rolling sample is formed from daily closing observations, whereas the
 risk-neutral parameters are calibrated from Deribit option transactions near
@@ -79,3 +144,5 @@ BTC/USD return, horizon, and USD numeraire, but it remains subject to a clock
 mismatch between the $P$ and $Q^{\mathrm{USD}}$ inputs. This limitation should
 be removed or explicitly controlled before the kernels are used for formal
 economic inference or live allocation.
+
+\clearpage

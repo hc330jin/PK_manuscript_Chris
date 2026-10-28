@@ -1,3 +1,14 @@
+Our estimation proceeds in three stages. We first estimate the physical SVCJ
+law from historical returns, then calibrate its risk-neutral counterpart to
+option prices, and finally combine the two predictive return densities at a
+common horizon to construct the pricing kernel. The first two subsections
+use known generating parameters and artificial return or option-price data
+to assess recovery by MCMC and Monte Carlo-based calibration, respectively.
+The final subsection illustrates the density-ratio construction with the
+January 2024 pilot and states its current diagnostic limitations. The formal
+empirical application in Section~\ref{sec:empirical_analysis} instead uses
+observed returns and option transactions over the full 2024 calendar year.
+
 \subsection{Physical-measure parameter estimation}
 \label{subsec:p_parameter_estimation}
 
@@ -460,10 +471,26 @@ P_i^{\mathrm{obs}}
 \label{eq:q_simulation_observed_price}
 \end{equation}
 where $\omega_i=1$ for a call and $\omega_i=-1$ for a put. The synthetic
-validation uses standard USD vanilla payoffs so that the Monte Carlo pricing
-and optimization pipeline can be isolated from the additional payoff
-transformation required by Deribit inverse options. The inverse-payoff
-implementation is validated separately before the market-data calibration.
+validation uses standard USD vanilla payoffs under $Q^{\mathrm{USD}}$.
+This convention is compatible with the empirical inverse-option calibration:
+the BTC settlement payoff is
+$H_T^{\mathrm{BTC}}=\max\{\omega(S_T-K),0\}/S_T$, so its terminal USD
+value is $S_T H_T^{\mathrm{BTC}}=\max\{\omega(S_T-K),0\}$. Under the
+maintained zero-rate assumptions, its time-$t$ BTC premium is therefore
+\begin{equation}
+ C_t^{\mathrm{BTC}}
+ =\frac{1}{S_t}E_t^{Q^{\mathrm{USD}}}
+       [S_T H_T^{\mathrm{BTC}}]
+ =E_t^{Q^{\mathrm{USD}}}
+       \left[\max\left\{\omega\left(\frac{S_T}{S_t}
+                                      -\frac{K}{S_t}\right),0\right\}\right].
+ \label{eq:inverse-option-usd-valuation}
+\end{equation}
+The empirical Monte Carlo pricer implements this normalized USD payoff and
+compares it with the observed BTC premium. Directly averaging
+$H_T^{\mathrm{BTC}}$ under $Q^{\mathrm{USD}}$ would instead mix a BTC
+payoff with the wrong valuation convention. This currency conversion leaves
+the risk-neutral measure used for the pricing-kernel density unchanged.
 
 The experiment uses independent common-random-number sets across the data and
 estimation stages. Specifically,
