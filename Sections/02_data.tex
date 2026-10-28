@@ -1,8 +1,8 @@
 \section{Data} \label{sec:data}
-This study employs two complementary datasets covering the period from January 1, 2020 to December 31, 2024: daily Bitcoin spot prices for physical measure estimation and intraday Deribit BTC inverse option transaction records for risk-neutral measure calibration. The analysis presented here focuses on the 2024 subsample for illustrative purposes, as it encompasses the most liquid and eventful period in the sample.\todo{To be determined what period(2020$\sim$2024 or only 2024) to show}
+The formal empirical study covers January 1 to December 31, 2024. It combines daily BTC/USD spot prices for physical-measure estimation with intraday Deribit BTC inverse-option transactions for risk-neutral calibration. All exploratory data analysis in the main text refers to this full calendar year. Earlier spot-price observations are used only to initialize the historical rolling estimation windows; they are not included in the 2024 descriptive statistics. The January 2024 pricing-kernel pilot in Section~\ref{subsec:pk-density-method} illustrates the density-ratio procedure while the physical-measure estimation is being refined; it does not redefine the full-year empirical study period.
 
 \subsection{Bitcoin Spot Prices and Log Returns}
-Bitcoin spot prices are sourced at daily frequency and exhibit a pronounced bull market throughout 2024, rising from approximately \$40,000 at the start of the year to a peak exceeding \$106,000 in late November before retracing to approximately \$93,000 by year-end (Figure~\ref{fig:btc_spot_log_returns_2024}, left panel). This appreciation was driven by two structural catalysts: the approval of spot Bitcoin ETFs in the United States in January 2024 and the fourth Bitcoin block reward halving in April 2024, both of which materially shifted the supply-demand balance and attracted substantial institutional inflows.
+Bitcoin spot prices are sourced at daily frequency and exhibit a pronounced bull market throughout 2024, rising from approximately \$43,600 at the start of the year to its highest daily close of approximately \$106,400 on December 17 before retracing to approximately \$93,700 by year-end (Figure~\ref{fig:btc_spot_log_returns_2024}, left panel). This appreciation was driven by two structural catalysts: the approval of spot Bitcoin ETFs in the United States in January 2024 and the fourth Bitcoin block reward halving in April 2024, both of which materially shifted the supply-demand balance and attracted substantial institutional inflows.
 
 \begin{figure}[htbp]
     \centering
@@ -11,29 +11,11 @@ Bitcoin spot prices are sourced at daily frequency and exhibit a pronounced bull
     \label{fig:btc_spot_log_returns_2024}
 \end{figure}
 
-The corresponding daily log return series (Figure~\ref{fig:btc_spot_log_returns_2024}, right panel) reveals the key distributional features that motivate the SVCJ modeling framework adopted in this thesis. Table~\ref{tab:btc_log_return_descriptive_statistics} reports descriptive statistics for daily Bitcoin log returns over the full sample period from 2014 to 2024. The mean daily return of 0.001371 corresponds to an annualized return of approximately 50\%, yet the near-zero median of 0.000000 reveals that this long-run appreciation is driven by a small number of extraordinary return days rather than steady drift---a hallmark of a jump-driven process. The standard deviation of 0.034990 implies an annualized volatility of approximately 67\%, reflecting the repeated boom-and-bust cycles that characterize the decade, including the 2017--2018 crash, the March 2020 COVID collapse, and the 2021--2022 drawdown exceeding 70\%.
+The corresponding daily log return series (Figure~\ref{fig:btc_spot_log_returns_2024}, right panel) motivates allowing for time-varying variance and jumps. Table~\ref{tab:btc_log_return_descriptive_statistics} reports statistics for the 366 daily BTC/USD log returns dated in 2024, computed from the same daily price series used for physical-measure estimation. The January 1 return uses the December 31, 2023 closing price. The mean and median daily log returns are 0.002160 and 0.001947, respectively. The daily standard deviation is 0.026733, corresponding to approximately 51.1\% annualized volatility under a 365-day convention.
 
-The distributional shape departs dramatically from normality along both dimensions of the Jarque-Bera decomposition. Skewness of $-0.427$ indicates a pronounced left tail: the largest single-day loss of $-31.7$\% substantially exceeds the largest single-day gain of +19.1\% in magnitude, reflecting crash episodes that pull the distribution asymmetrically downward and generate a downside jump risk premium embedded in Bitcoin option prices. Kurtosis of 9.754 — more than three times the Gaussian benchmark of 3 — confirms that extreme return realizations occur far more frequently than any normal distribution would predict. Jointly, these features produce a Jarque-Bera statistic of 7,527.47, constituting a categorical rejection of normality at any conventional significance level and closing the door on Black-Scholes as a viable pricing framework. These distributional facts collectively motivate the SVCJ specification adopted in this thesis, which explicitly accommodates stochastic volatility, correlated price jumps, and correlated volatility jumps as the minimum viable structure for capturing Bitcoin's return dynamics.
+The 2024 distribution has mild positive skewness of 0.170 and Pearson kurtosis of 3.995, above the Gaussian benchmark of 3. Its minimum and maximum daily log returns are approximately $-0.0836$ and $0.0964$. The Jarque--Bera statistic is 16.865, with an asymptotic $p$-value of approximately 0.00022. These statistics indicate departures from unconditional Gaussianity within the study year and motivate a richer return specification. They do not, by themselves, identify the jump mechanism or establish the adequacy of SVCJ; parameter recovery and model diagnostics are assessed separately in Section~\ref{sec:preliminaries}.
 
-\begin{table}[htbp]
-    \centering
-    \begin{tabular}{cr}
-    \hline
-    \multicolumn{2}{c}{Descriptive statistics} \\
-    \hline
-        Mean & 0.001371 \\
-        Standard deviation & 0.034990\\
-        Skewness & $-0.426816$\\
-        Kurtosis & 9.7541098\\
-        Minimum & $-0.317282$\\
-        Median & 0.000000\\
-        Maximum & 0.190903\\
-        JB & 7527.471506\\
-        \hline
-    \end{tabular}
-    \caption{\textbf{Descriptive statistics of daily Bitcoin log returns, 2014--2024.}}
-    \label{tab:btc_log_return_descriptive_statistics}
-\end{table}
+\input{Sections/02_data_tables/btc_returns_2024}
 
 \subsection{Deribit BTC Inverse Options and Daily Closing Prices}
 \label{subsec:deribit_filtered_options}
