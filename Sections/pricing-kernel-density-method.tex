@@ -1,0 +1,81 @@
+\subsection{Posterior-predictive density-ratio pricing kernels}
+\label{subsec:pk-density-method}
+
+We estimate a daily sequence of seven-calendar-day pricing kernels for Bitcoin.
+For conditioning date $t$, the common state variable under both measures is the
+cumulative BTC/USD log return
+\begin{equation}
+    R_{t,t+\tau}=\log(S_{t+\tau}/S_t), \qquad \tau=7.
+\end{equation}
+The horizon $\tau$ is part of the estimand: changing it changes the two
+conditional return distributions, their smoothing bandwidths and common
+support, and hence the density ratio. The USD-money-market numeraire is used
+for the risk-neutral distribution. With the maintained zero interest and
+dividend rates, the pricing kernel is therefore estimated as
+\begin{equation}
+    \widehat m_t(r)=
+    \frac{\widehat q^{\mathrm{USD}}_t(r)}{\widehat p_t(r)}.
+    \label{eq:pk-density-ratio}
+\end{equation}
+
+Our baseline implementation, denoted Scheme B, propagates physical-measure
+parameter and state uncertainty but uses a daily plug-in risk-neutral
+calibration. Under $P$, we combine the four MCMC chains for date $t$ only after
+burn-in and thinning. Each retained SVCJ parameter vector remains paired with
+the terminal latent variance from the same chain and iteration. For every
+simulated path we sample one such paired posterior draw and simulate the SVCJ
+law forward for seven days. Under $Q^{\mathrm{USD}}$, we condition on the
+date-$t$ calibrated SVCJ parameter vector, including its initial variance, and
+simulate the same seven-day cumulative BTC/USD log return. The risk-neutral
+jump drift includes the compensator required by the USD martingale restriction;
+we report the Monte Carlo diagnostic for
+$E_{Q^{\mathrm{USD}}}[\exp(R_{t,t+\tau})]=1$.
+
+For each measure $M\in\{P,Q^{\mathrm{USD}}\}$ and date we generate
+$N=100{,}000$ paths and estimate a Gaussian kernel density,
+\begin{equation}
+    \widehat f_{M,t}(r;h_{M,t})=
+    \frac{1}{N h_{M,t}}\sum_{i=1}^{N}
+    \phi\!\left(\frac{r-R^{M}_{i,t,t+\tau}}{h_{M,t}}\right).
+    \label{eq:pk-kde}
+\end{equation}
+MATLAB's normal-reference selector determines separate baseline bandwidths for
+$P$ and $Q^{\mathrm{USD}}$. We assess smoothing sensitivity by multiplying
+both measure-specific baseline bandwidths by $0.75$, $1.00$, and $1.25$. All
+six densities are evaluated on the same 2,001-point grid and numerically
+renormalized on that grid before division.
+
+Density ratios are reported only on empirically supported states. Let
+$I^P_t$ and $I^Q_t$ denote the respective sample intervals bounded by the
+$0.5$ and $99.5$ percentiles. The valid support is
+$A_t=I^P_t\cap I^Q_t$. We set $\widehat m_t(r)$ to missing outside $A_t$ and
+do not extrapolate, winsorize, or clip the ratio. A date fails descriptively if
+the common interval is empty or too narrow, a KDE is nonfinite, or the
+physical density is nonpositive on valid grid cells. For every bandwidth we
+audit
+\begin{equation}
+ \int \widehat p_t(r)\,dr=1,\qquad
+ \int \widehat q^{\mathrm{USD}}_t(r)\,dr=1,\qquad
+ \int_{A_t}\widehat p_t(r)\widehat m_t(r)\,dr
+ =\int_{A_t}\widehat q^{\mathrm{USD}}_t(r)\,dr.
+ \label{eq:pk-numerical-audit}
+\end{equation}
+
+The January 2024 pilot contains all 31 conditioning dates. The maximum density
+normalization error is $4.44\times10^{-16}$, the maximum density-ratio identity
+error is $5.55\times10^{-16}$, and the smallest baseline common-support mass is
+$0.9366$. The $Q^{\mathrm{USD}}$ martingale z-statistics range from $-2.05$ to
+$1.42$. These are numerical validation results, not evidence that the physical
+model is final. In particular, every January physical-measure run fails the
+current strict convergence screen and records 10--14 parameter warnings. We retain
+and flag these dates rather than selecting on convergence while the
+$P$-measure estimation is being improved.
+
+Finally, the conditioning information sets are not exactly synchronous. The
+physical rolling sample is formed from daily closing observations, whereas the
+risk-neutral parameters are calibrated from Deribit option transactions near
+08:00 UTC. Thus, Equation~\eqref{eq:pk-density-ratio} compares the same
+BTC/USD return, horizon, and USD numeraire, but it remains subject to a clock
+mismatch between the $P$ and $Q^{\mathrm{USD}}$ inputs. This limitation should
+be removed or explicitly controlled before the kernels are used for formal
+economic inference or live allocation.
