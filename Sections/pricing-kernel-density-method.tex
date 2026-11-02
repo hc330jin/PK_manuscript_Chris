@@ -22,18 +22,18 @@ dividend rates, the pricing kernel is therefore estimated as
 
 Our baseline implementation propagates physical-measure
 parameter and state uncertainty but uses a daily plug-in risk-neutral
-calibration. Under $P$, we combine the four MCMC chains for date $t$ only after
+calibration. Under $\mathbb{P}$, we combine the four MCMC chains for date $t$ only after
 burn-in and thinning. Each retained SVCJ parameter vector remains paired with
 the terminal latent variance from the same chain and iteration. For every
 simulated path we sample one such paired posterior draw and simulate the SVCJ
-law forward for seven days. Under $Q^{\mathrm{USD}}$, we condition on the
+law forward for seven days. Under $\mathbb{Q}^{\mathrm{USD}}$, we condition on the
 date-$t$ calibrated SVCJ parameter vector, including its initial variance, and
 simulate the same seven-day cumulative BTC/USD log return. The risk-neutral
 jump drift includes the compensator required by the USD martingale restriction;
 we report the Monte Carlo diagnostic for
-$E_{Q^{\mathrm{USD}}}[\exp(R_{t,t+\tau})]=1$.
+$\mathbb{E}_{\mathbb{Q}^{\mathrm{USD}}}[\exp(R_{t,t+\tau})]=1$.
 
-For each measure $M\in\{P,Q^{\mathrm{USD}}\}$ and date we generate
+For each measure $M\in\{\mathbb{P},\mathbb{Q}^{\mathrm{USD}}\}$ and date we generate
 $N=100{,}000$ paths and estimate a Gaussian kernel density,
 \begin{equation}
     \widehat f_{M,t}(r;h_{M,t})=
@@ -42,7 +42,7 @@ $N=100{,}000$ paths and estimate a Gaussian kernel density,
     \label{eq:pk-kde}
 \end{equation}
 MATLAB's normal-reference selector determines separate baseline bandwidths for
-$P$ and $Q^{\mathrm{USD}}$. We assess smoothing sensitivity by multiplying
+$\mathbb{P}$ and $\mathbb{Q}^{\mathrm{USD}}$. We assess smoothing sensitivity by multiplying
 both measure-specific baseline bandwidths by $0.75$, $1.00$, and $1.25$. All
 six densities are evaluated on the same 2,001-point grid and numerically
 renormalized on that grid before division.
@@ -69,12 +69,12 @@ illustration to a January 2024 pilot containing all 31 conditioning dates;
 the pilot is not the final full-year empirical analysis. The maximum density
 normalization error is $4.44\times10^{-16}$, the maximum density-ratio identity
 error is $5.55\times10^{-16}$, and the smallest baseline common-support mass is
-$0.9366$. The $Q^{\mathrm{USD}}$ martingale z-statistics range from $-2.05$ to
+$0.9366$. The $\mathbb{Q}^{\mathrm{USD}}$ martingale z-statistics range from $-2.05$ to
 $1.42$. These are numerical validation results, not evidence that the physical
 model is final. In particular, every January physical-measure run fails the
 current strict convergence screen and records 10--14 parameter warnings. We retain
 and flag these dates rather than selecting on convergence while the
-$P$-measure estimation is being improved.
+$\mathbb{P}$-measure estimation is being improved.
 
 Figures~\ref{fig:pk-density-20240101} and~\ref{fig:pk-density-20240108}
 illustrate the construction for January 1 and January 8, 2024. In each figure,
@@ -141,7 +141,7 @@ physical rolling sample is formed from daily closing observations, whereas the
 risk-neutral parameters are calibrated from Deribit option transactions near
 08:00 UTC. Thus, Equation~\eqref{eq:pk-density-ratio} compares the same
 BTC/USD return, horizon, and USD numeraire, but it remains subject to a clock
-mismatch between the $P$ and $Q^{\mathrm{USD}}$ inputs. This limitation should
+mismatch between the $\mathbb{P}$ and $\mathbb{Q}^{\mathrm{USD}}$ inputs. This limitation should
 be removed or explicitly controlled before the kernels are used for formal
 economic inference or live allocation.
 
